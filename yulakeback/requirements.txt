@@ -1,0 +1,13 @@
+# Flask 框架
+flask==3.1.0
+flask-cors==5.0.0
+
+# 資料庫
+flask-sqlalchemy==3.1.1
+psycopg2-binary==2.9.10
+
+# 生產環境伺服器
+gunicorn==23.0.0
+
+# 環境變數
+python-dotenv==1.0.1

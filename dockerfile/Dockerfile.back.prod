@@ -1,0 +1,30 @@
+# ===== 建置階段 =====
+# 使用 Python 3.12 作為基底
+FROM python:3.12-slim AS builder
+
+WORKDIR /app
+
+# 安裝依賴
+COPY yulakeback/requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# ===== 執行階段 =====
+FROM python:3.12-slim
+
+WORKDIR /app
+
+ENV PYTHONUNBUFFERED=1
+ENV PYTHONDONTWRITEBYTECODE=1
+
+# 從建置階段複製已安裝的套件
+COPY --from=builder /usr/local/lib/python3.12/site-packages /usr/local/lib/python3.12/site-packages
+COPY --from=builder /usr/local/bin /usr/local/bin
+
+# 複製 dev 環境的所有原始碼
+COPY yulakeback/ .
+
+# 對外開放 5000 埠
+EXPOSE 5000
+
+# 使用 Gunicorn 啟動
+CMD ["gunicorn", "-c", "gunicorn.conf.py", "app:app"]

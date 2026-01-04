@@ -1,0 +1,28 @@
+# ===== 建置階段 =====
+# 使用 Node 24 作為建置環境
+FROM node:24-bookworm-slim AS builder
+WORKDIR /app
+
+# 先複製 package.json 安裝依賴（利用 Docker 快取層）
+COPY yulakefront/package.json yulakefront/package-lock.json* ./
+RUN npm install
+
+# 複製 dev 環境的所有原始碼（你改的程式碼在這裡被讀入）
+COPY yulakefront/ .
+# 執行 nuxt build，產生 .output/ 資料夾
+RUN npm run build
+
+# ===== 執行階段 =====
+# 使用乾淨的 Node 環境（不包含 node_modules 等建置工具）
+FROM node:24-bookworm-slim
+WORKDIR /app
+
+ENV NODE_ENV=production
+
+# 只複製建置結果，映像檔更小更安全
+COPY --from=builder /app/.output ./.output
+
+# 對外開放 3000 埠
+EXPOSE 3000
+# 啟動 Nuxt 伺服器
+CMD ["node", ".output/server/index.mjs"]

@@ -1,0 +1,27 @@
+services:
+  # ===== PostgreSQL 資料庫 =====
+  db:
+    image: postgres:17-alpine
+    container_name: yulake-db-prod
+    restart: always
+    ports:
+      - "5433:5432"
+    environment:
+      POSTGRES_USER: yulake
+      POSTGRES_PASSWORD: yulake
+      POSTGRES_DB: yulake
+    volumes:
+      # 資料持久化
+      - ./pgdata-prod:/var/lib/postgresql/data
+
+  # ===== Flask 後端 =====
+  yulakeback-prod:
+    image: shaoairai/yulakeback:latest
+    container_name: yulakeback-prod
+    restart: always
+    ports:
+      - "5001:5000"
+    environment:
+      - DATABASE_URL=postgresql://yulake:yulake@db:5432/yulake
+    depends_on:
+      - db

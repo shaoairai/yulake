@@ -1,0 +1,34 @@
+services:
+  # ===== PostgreSQL 資料庫 =====
+  db:
+    image: postgres:17-alpine
+    container_name: yulake-db-dev
+    restart: unless-stopped
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: yulake
+      POSTGRES_PASSWORD: yulake
+      POSTGRES_DB: yulake
+    volumes:
+      # 資料持久化（資料夾會自動建立，內容被 PostgreSQL 管理）
+      - ./pgdata:/var/lib/postgresql/data
+
+  # ===== Flask 後端 =====
+  yulakeback-dev:
+    build:
+      context: .
+      dockerfile: dockerfile/Dockerfile.back.dev
+    container_name: yulakeback-dev
+    restart: unless-stopped
+    ports:
+      - "5000:5000"
+    environment:
+      - DATABASE_URL=postgresql://yulake:yulake@db:5432/yulake
+      - FLASK_ENV=development
+      - FLASK_DEBUG=1
+    volumes:
+      # 掛載原始碼，支援熱重載
+      - ./yulakeback:/app
+    depends_on:
+      - db

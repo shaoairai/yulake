@@ -1,0 +1,64 @@
+# PostgreSQL 資料（機密，不可上傳）
+pgdata/
+pgdata-prod/
+
+# 環境變數
+.env
+*.env
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Docker
+*.log
+
+# Nuxt dev/build outputs
+.output
+.data
+.nuxt
+.nitro
+.cache
+dist
+
+# Node dependencies
+node_modules
+
+# Logs
+logs
+*.log
+
+# Misc
+.DS_Store
+.fleet
+.idea
+
+# Local env files
+.env
+.env.*
+!.env.example
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+ENV/
+
+# 環境變數
+.env
+
+# IDE
+.vscode/
+.idea/
+
+# 測試
+.pytest_cache/
+.coverage
+htmlcov/

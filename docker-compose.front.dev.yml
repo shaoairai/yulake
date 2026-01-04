@@ -1,0 +1,44 @@
+services:
+  yulakefront-dev:
+    build:
+      context: .
+      dockerfile: dockerfile/Dockerfile.front.dev
+    container_name: yulakefront-dev
+    volumes:
+      - ./yulakefront:/app
+      - /app/node_modules
+    ports:
+      - "3500:3000"
+    command: npm run dev
+
+
+# version: "3.8"
+
+# services:
+#   yulakefront:
+#     image: shaoairai/yulakefront:v1.0.0
+#     build:
+#       context: .
+#       dockerfile: ./dockerfile/Dockerfileyulakefront
+#     # 掛載
+#     # volumes:
+#     #   - ./:/app
+#     container_name: yulakefront
+#     restart: always
+#     ports:
+#       - "3500:5000"
+#     # env_file:
+#     #   - .env # 直接讀取 .env 檔案所有變數
+#     environment:
+#       - PYTHONUNBUFFERED=1
+#     logging:
+#       options:
+#         max-size: "10m"
+#         max-file: "10"
+#     command: sh -c "flask run --no-debugger --host 0.0.0.0 --port 5000"
+#     networks:
+#       - yulake-network
+
+# networks:
+#   yulake-network:
+#     external: true

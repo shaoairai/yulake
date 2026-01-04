@@ -1,0 +1,9 @@
+services:
+  yulakefront-prod:
+    image: shaoairai/yulakefront:latest
+    container_name: yulakefront-prod
+    restart: always
+    ports:
+      - "3501:3000"
+    environment:
+      - NODE_ENV=production
