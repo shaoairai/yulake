@@ -89,7 +89,7 @@
     <text x="135" y="405" fill="#1565c0" font-family="Helvetica" font-size="12" font-weight="bold" text-anchor="middle">登入流程</text>
 
     <rect x="75" y="420" width="120" height="50" fill="#bbdefb" stroke="#1565c0" stroke-width="1" rx="5"/>
-    <text x="135" y="440" fill="#333" font-family="Helvetica" font-size="10" text-anchor="middle">輸入手機</text>
+    <text x="135" y="440" fill="#333" font-family="Helvetica" font-size="10" text-anchor="middle">輸入 Email</text>
     <text x="135" y="458" fill="#333" font-family="Helvetica" font-size="10" text-anchor="middle">輸入密碼</text>
 
     <rect x="75" y="485" width="120" height="35" fill="#1565c0" stroke="#1565c0" stroke-width="1" rx="5"/>
@@ -108,7 +108,7 @@
 
     <rect x="475" y="420" width="120" height="65" fill="#a5d6a7" stroke="#388e3c" stroke-width="1" rx="5"/>
     <text x="535" y="438" fill="#333" font-family="Helvetica" font-size="10" text-anchor="middle">輸入姓名</text>
-    <text x="535" y="455" fill="#333" font-family="Helvetica" font-size="10" text-anchor="middle">輸入手機</text>
+    <text x="535" y="455" fill="#333" font-family="Helvetica" font-size="10" text-anchor="middle">輸入 Email</text>
     <text x="535" y="472" fill="#333" font-family="Helvetica" font-size="10" text-anchor="middle">設定密碼</text>
 
     <rect x="475" y="500" width="120" height="35" fill="#388e3c" stroke="#388e3c" stroke-width="1" rx="5"/>
@@ -118,7 +118,7 @@
     <text x="535" y="590" fill="#333" font-family="Helvetica" font-size="9" text-anchor="middle">成功?</text>
 
     <rect x="475" y="625" width="120" height="25" fill="#ffcdd2" stroke="#c62828" stroke-width="1" rx="3"/>
-    <text x="535" y="642" fill="#c62828" font-family="Helvetica" font-size="9" text-anchor="middle">手機已註冊 → 登入</text>
+    <text x="535" y="642" fill="#c62828" font-family="Helvetica" font-size="9" text-anchor="middle">Email 已註冊 → 登入</text>
 
     <!-- Arrow choice to register -->
     <path d="M410 430 L460 430" fill="none" stroke="#333" stroke-width="1.5" marker-end="url(#arrow)"/>

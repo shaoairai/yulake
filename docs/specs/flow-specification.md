@@ -154,15 +154,16 @@ ELSE
 **登入流程**
 | 欄位 | 類型 | 必填 | 驗證 |
 |------|------|------|------|
-| phone | string | Y | 台灣手機格式 09xxxxxxxx |
+| email | string | Y | 有效 Email 格式 |
 | password | string | Y | 最少 6 字元 |
 
 **註冊流程**
 | 欄位 | 類型 | 必填 | 驗證 |
 |------|------|------|------|
 | name | string | Y | 1-50 字元 |
-| phone | string | Y | 台灣手機格式，不可重複 |
+| email | string | Y | 有效 Email 格式，不可重複 |
 | password | string | Y | 最少 6 字元 |
+| phone | string | N | 台灣手機格式（選填，聯絡用）|
 
 **API 呼叫**
 - `POST /api/auth/login` - 登入
@@ -229,7 +230,7 @@ interface CreateBookingRequest {
 ```typescript
 interface TokenPayload {
   user_id: string
-  phone: string
+  email: string
   name: string
   exp: number       // 過期時間
   iat: number       // 簽發時間
@@ -250,7 +251,7 @@ POST /api/auth/login
 Content-Type: application/json
 
 {
-  "phone": "0912345678",
+  "email": "customer@example.com",
   "password": "userpassword"
 }
 ```
@@ -264,7 +265,7 @@ Content-Type: application/json
     "user": {
       "id": "user_123",
       "name": "王小明",
-      "phone": "0912345678"
+      "email": "customer@example.com"
     }
   }
 }
@@ -276,7 +277,7 @@ Content-Type: application/json
   "success": false,
   "error": {
     "code": "AUTH_INVALID_CREDENTIALS",
-    "message": "手機號碼或密碼錯誤"
+    "message": "Email 或密碼錯誤"
   }
 }
 ```
@@ -290,8 +291,9 @@ Content-Type: application/json
 
 {
   "name": "王小明",
-  "phone": "0912345678",
-  "password": "userpassword"
+  "email": "customer@example.com",
+  "password": "userpassword",
+  "phone": "0912345678"  // 選填
 }
 ```
 
@@ -304,19 +306,19 @@ Content-Type: application/json
     "user": {
       "id": "user_123",
       "name": "王小明",
-      "phone": "0912345678"
+      "email": "customer@example.com"
     }
   }
 }
 ```
 
-**Error Response - 手機已存在**
+**Error Response - Email 已存在**
 ```json
 {
   "success": false,
   "error": {
-    "code": "AUTH_PHONE_EXISTS",
-    "message": "此手機號碼已註冊"
+    "code": "AUTH_EMAIL_EXISTS",
+    "message": "此 Email 已註冊"
   }
 }
 ```
@@ -546,7 +548,7 @@ min_booking_time = current_time + 3 小時
 | 錯誤碼 | HTTP Status | 說明 |
 |--------|-------------|------|
 | AUTH_INVALID_CREDENTIALS | 401 | 登入失敗：帳號密碼錯誤 |
-| AUTH_PHONE_EXISTS | 400 | 註冊失敗：手機已存在 |
+| AUTH_EMAIL_EXISTS | 400 | 註冊失敗：Email 已存在 |
 | AUTH_TOKEN_EXPIRED | 401 | Token 已過期 |
 | AUTH_TOKEN_INVALID | 401 | Token 無效 |
 | BOOKING_SLOT_UNAVAILABLE | 400 | 時段已被預約 |

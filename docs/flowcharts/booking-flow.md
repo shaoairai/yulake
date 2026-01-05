@@ -82,8 +82,8 @@ flowchart TD
         Step4 --> |"是"| SkipAuth["跳過驗證"]
         Step4 --> |"否"| ShowAuth["顯示登入/註冊選項"]
         ShowAuth --> AuthChoice{"選擇方式"}
-        AuthChoice --> |"已有帳號"| Login["輸入手機+密碼"]
-        AuthChoice --> |"新用戶"| Register["輸入姓名+手機+密碼"]
+        AuthChoice --> |"已有帳號"| Login["輸入 Email+密碼"]
+        AuthChoice --> |"新用戶"| Register["輸入姓名+Email+密碼"]
         Login --> CallLogin["呼叫 Login API"]
         Register --> CallRegister["呼叫 Register API"]
         CallLogin --> AuthSuccess["登入成功"]
@@ -149,7 +149,7 @@ flowchart TD
     UserChoice --> |"註冊"| RegisterForm["註冊表單"]
 
     subgraph LoginProcess["登入流程"]
-        LoginForm --> InputLogin["輸入手機 + 密碼"]
+        LoginForm --> InputLogin["輸入 Email + 密碼"]
         InputLogin --> SubmitLogin["送出登入請求"]
         SubmitLogin --> LoginResult{"登入結果"}
         LoginResult --> |"成功"| SaveToken["儲存 Token"]
@@ -158,15 +158,15 @@ flowchart TD
     end
 
     subgraph RegisterProcess["註冊流程"]
-        RegisterForm --> InputRegister["輸入姓名 + 手機 + 密碼"]
+        RegisterForm --> InputRegister["輸入姓名 + Email + 密碼"]
         InputRegister --> ValidateInput{"驗證輸入"}
         ValidateInput --> |"格式錯誤"| ShowValidation["顯示驗證錯誤"]
         ShowValidation --> InputRegister
         ValidateInput --> |"通過"| SubmitRegister["送出註冊請求"]
         SubmitRegister --> RegisterResult{"註冊結果"}
         RegisterResult --> |"成功"| AutoLogin["自動登入"]
-        RegisterResult --> |"手機已存在"| PhoneExists["顯示：此手機已註冊"]
-        PhoneExists --> LoginForm
+        RegisterResult --> |"Email 已存在"| EmailExists["顯示：此 Email 已註冊"]
+        EmailExists --> LoginForm
         AutoLogin --> SaveToken
     end
 
