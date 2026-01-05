@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" width="900px" height="700px" viewBox="-0.5 -0.5 900 700" content="&lt;mxfile host=&quot;app.diagrams.net&quot;&gt;&lt;diagram name=&quot;身份驗證流程&quot; id=&quot;auth-flow&quot;&gt;&lt;mxGraphModel dx=&quot;900&quot; dy=&quot;700&quot; grid=&quot;1&quot; gridSize=&quot;10&quot; guides=&quot;1&quot; tooltips=&quot;1&quot; connect=&quot;1&quot; arrows=&quot;1&quot; fold=&quot;1&quot; page=&quot;1&quot; pageScale=&quot;1&quot; pageWidth=&quot;900&quot; pageHeight=&quot;700&quot; math=&quot;0&quot; shadow=&quot;0&quot;&gt;&lt;root&gt;&lt;mxCell id=&quot;0&quot;/&gt;&lt;mxCell id=&quot;1&quot; parent=&quot;0&quot;/&gt;&lt;/root&gt;&lt;/mxGraphModel&gt;&lt;/diagram&gt;&lt;/mxfile&gt;">
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="#333"/>
+    </marker>
+    <marker id="arrow-green" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="#388e3c"/>
+    </marker>
+    <marker id="arrow-red" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="#c62828"/>
+    </marker>
+  </defs>
+  <g>
+    <!-- Title -->
+    <text x="450" y="35" fill="#333333" font-family="Helvetica" font-size="22" font-weight="bold" text-anchor="middle">身份驗證流程圖 (Step 4)</text>
+    <text x="450" y="55" fill="#666666" font-family="Helvetica" font-size="11" text-anchor="middle">Authentication Flow - 登入與註冊</text>
+
+    <!-- Start -->
+    <ellipse cx="450" cy="100" rx="60" ry="25" fill="#e3f2fd" stroke="#1565c0" stroke-width="2"/>
+    <text x="450" y="105" fill="#1565c0" font-family="Helvetica" font-size="11" font-weight="bold" text-anchor="middle">進入 Step 4</text>
+
+    <!-- Check Token -->
+    <polygon points="450,160 540,210 450,260 360,210" fill="#fff3e0" stroke="#e65100" stroke-width="2"/>
+    <text x="450" y="205" fill="#333" font-family="Helvetica" font-size="10" text-anchor="middle">localStorage</text>
+    <text x="450" y="220" fill="#333" font-family="Helvetica" font-size="10" text-anchor="middle">有 Token?</text>
+
+    <!-- Arrow start to check -->
+    <path d="M450 125 L450 160" fill="none" stroke="#333" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+    <!-- Validate Token -->
+    <rect x="580" y="180" width="120" height="60" fill="#e3f2fd" stroke="#1565c0" stroke-width="2" rx="8"/>
+    <text x="640" y="205" fill="#333" font-family="Helvetica" font-size="11" font-weight="bold" text-anchor="middle">驗證 Token</text>
+    <text x="640" y="225" fill="#666" font-family="Helvetica" font-size="9" text-anchor="middle">API 驗證有效性</text>
+
+    <!-- Arrow check to validate -->
+    <path d="M540 210 L580 210" fill="none" stroke="#333" stroke-width="1.5" marker-end="url(#arrow)"/>
+    <text x="560" y="200" fill="#388e3c" font-family="Helvetica" font-size="9" text-anchor="middle">有</text>
+
+    <!-- Token Valid Decision -->
+    <polygon points="640,290 710,330 640,370 570,330" fill="#fff3e0" stroke="#e65100" stroke-width="2"/>
+    <text x="640" y="325" fill="#333" font-family="Helvetica" font-size="10" text-anchor="middle">Token</text>
+    <text x="640" y="340" fill="#333" font-family="Helvetica" font-size="10" text-anchor="middle">有效?</text>
+
+    <!-- Arrow validate to decision -->
+    <path d="M640 240 L640 290" fill="none" stroke="#333" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+    <!-- Load User -->
+    <rect x="760" y="300" width="110" height="60" fill="#c8e6c9" stroke="#388e3c" stroke-width="2" rx="8"/>
+    <text x="815" y="325" fill="#333" font-family="Helvetica" font-size="11" font-weight="bold" text-anchor="middle">載入用戶資料</text>
+    <text x="815" y="345" fill="#666" font-family="Helvetica" font-size="9" text-anchor="middle">user_id, name...</text>
+
+    <!-- Arrow decision to load user -->
+    <path d="M710 330 L760 330" fill="none" stroke="#388e3c" stroke-width="1.5" marker-end="url(#arrow-green)"/>
+    <text x="735" y="320" fill="#388e3c" font-family="Helvetica" font-size="9" text-anchor="middle">是</text>
+
+    <!-- Clear Token -->
+    <rect x="580" y="410" width="120" height="50" fill="#ffcdd2" stroke="#c62828" stroke-width="2" rx="8"/>
+    <text x="640" y="435" fill="#333" font-family="Helvetica" font-size="11" font-weight="bold" text-anchor="middle">清除無效 Token</text>
+    <text x="640" y="450" fill="#666" font-family="Helvetica" font-size="9" text-anchor="middle">localStorage.remove</text>
+
+    <!-- Arrow decision to clear -->
+    <path d="M640 370 L640 410" fill="none" stroke="#c62828" stroke-width="1.5" marker-end="url(#arrow-red)"/>
+    <text x="655" y="395" fill="#c62828" font-family="Helvetica" font-size="9" text-anchor="middle">否</text>
+
+    <!-- Show Options -->
+    <rect x="260" y="280" width="140" height="60" fill="#f3e5f5" stroke="#7b1fa2" stroke-width="2" rx="8"/>
+    <text x="330" y="305" fill="#333" font-family="Helvetica" font-size="11" font-weight="bold" text-anchor="middle">顯示登入/註冊</text>
+    <text x="330" y="325" fill="#666" font-family="Helvetica" font-size="9" text-anchor="middle">選項畫面</text>
+
+    <!-- Arrow check to options -->
+    <path d="M360 210 L330 210 L330 280" fill="none" stroke="#333" stroke-width="1.5" marker-end="url(#arrow)"/>
+    <text x="300" y="200" fill="#c62828" font-family="Helvetica" font-size="9" text-anchor="middle">無</text>
+
+    <!-- Arrow clear to options -->
+    <path d="M580 435 L330 435 L330 340" fill="none" stroke="#333" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+    <!-- User Choice -->
+    <polygon points="330,390 410,430 330,470 250,430" fill="#fff3e0" stroke="#e65100" stroke-width="2"/>
+    <text x="330" y="425" fill="#333" font-family="Helvetica" font-size="10" text-anchor="middle">使用者</text>
+    <text x="330" y="440" fill="#333" font-family="Helvetica" font-size="10" text-anchor="middle">選擇?</text>
+
+    <!-- Arrow options to choice -->
+    <path d="M330 340 L330 390" fill="none" stroke="#333" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+    <!-- Login Form Section -->
+    <rect x="60" y="380" width="150" height="240" fill="#e3f2fd" stroke="#1565c0" stroke-width="2" rx="10"/>
+    <text x="135" y="405" fill="#1565c0" font-family="Helvetica" font-size="12" font-weight="bold" text-anchor="middle">登入流程</text>
+
+    <rect x="75" y="420" width="120" height="50" fill="#bbdefb" stroke="#1565c0" stroke-width="1" rx="5"/>
+    <text x="135" y="440" fill="#333" font-family="Helvetica" font-size="10" text-anchor="middle">輸入手機</text>
+    <text x="135" y="458" fill="#333" font-family="Helvetica" font-size="10" text-anchor="middle">輸入密碼</text>
+
+    <rect x="75" y="485" width="120" height="35" fill="#1565c0" stroke="#1565c0" stroke-width="1" rx="5"/>
+    <text x="135" y="508" fill="#fff" font-family="Helvetica" font-size="10" font-weight="bold" text-anchor="middle">送出登入</text>
+
+    <polygon points="135,545 175,570 135,595 95,570" fill="#fff3e0" stroke="#e65100" stroke-width="1"/>
+    <text x="135" y="575" fill="#333" font-family="Helvetica" font-size="9" text-anchor="middle">成功?</text>
+
+    <!-- Arrow choice to login -->
+    <path d="M250 430 L195 430 L195 420" fill="none" stroke="#333" stroke-width="1.5" marker-end="url(#arrow)"/>
+    <text x="215" y="420" fill="#333" font-family="Helvetica" font-size="9" text-anchor="middle">登入</text>
+
+    <!-- Register Form Section -->
+    <rect x="460" y="380" width="150" height="280" fill="#c8e6c9" stroke="#388e3c" stroke-width="2" rx="10"/>
+    <text x="535" y="405" fill="#388e3c" font-family="Helvetica" font-size="12" font-weight="bold" text-anchor="middle">註冊流程</text>
+
+    <rect x="475" y="420" width="120" height="65" fill="#a5d6a7" stroke="#388e3c" stroke-width="1" rx="5"/>
+    <text x="535" y="438" fill="#333" font-family="Helvetica" font-size="10" text-anchor="middle">輸入姓名</text>
+    <text x="535" y="455" fill="#333" font-family="Helvetica" font-size="10" text-anchor="middle">輸入手機</text>
+    <text x="535" y="472" fill="#333" font-family="Helvetica" font-size="10" text-anchor="middle">設定密碼</text>
+
+    <rect x="475" y="500" width="120" height="35" fill="#388e3c" stroke="#388e3c" stroke-width="1" rx="5"/>
+    <text x="535" y="523" fill="#fff" font-family="Helvetica" font-size="10" font-weight="bold" text-anchor="middle">送出註冊</text>
+
+    <polygon points="535,560 575,585 535,610 495,585" fill="#fff3e0" stroke="#e65100" stroke-width="1"/>
+    <text x="535" y="590" fill="#333" font-family="Helvetica" font-size="9" text-anchor="middle">成功?</text>
+
+    <rect x="475" y="625" width="120" height="25" fill="#ffcdd2" stroke="#c62828" stroke-width="1" rx="3"/>
+    <text x="535" y="642" fill="#c62828" font-family="Helvetica" font-size="9" text-anchor="middle">手機已註冊 → 登入</text>
+
+    <!-- Arrow choice to register -->
+    <path d="M410 430 L460 430" fill="none" stroke="#333" stroke-width="1.5" marker-end="url(#arrow)"/>
+    <text x="438" y="420" fill="#333" font-family="Helvetica" font-size="9" text-anchor="middle">註冊</text>
+
+    <!-- Save Token -->
+    <rect x="280" y="530" width="100" height="50" fill="#fff9c4" stroke="#f9a825" stroke-width="2" rx="8"/>
+    <text x="330" y="552" fill="#333" font-family="Helvetica" font-size="10" font-weight="bold" text-anchor="middle">儲存 Token</text>
+    <text x="330" y="570" fill="#666" font-family="Helvetica" font-size="9" text-anchor="middle">localStorage</text>
+
+    <!-- Arrow login success to save -->
+    <path d="M175 570 L280 555" fill="none" stroke="#388e3c" stroke-width="1.5" marker-end="url(#arrow-green)"/>
+
+    <!-- Arrow register success to save -->
+    <path d="M495 585 L380 555" fill="none" stroke="#388e3c" stroke-width="1.5" marker-end="url(#arrow-green)"/>
+
+    <!-- Arrow register fail to login -->
+    <path d="M475 642 L195 575" fill="none" stroke="#c62828" stroke-width="1" stroke-dasharray="5,3" marker-end="url(#arrow-red)"/>
+
+    <!-- Login Error -->
+    <rect x="40" y="600" width="80" height="25" fill="#ffcdd2" stroke="#c62828" stroke-width="1" rx="3"/>
+    <text x="80" y="617" fill="#c62828" font-family="Helvetica" font-size="9" text-anchor="middle">帳密錯誤</text>
+
+    <!-- Arrow login fail to error -->
+    <path d="M95 570 L80 600" fill="none" stroke="#c62828" stroke-width="1" marker-end="url(#arrow-red)"/>
+    <path d="M80 625 L80 645 L135 645 L135 520" fill="none" stroke="#666" stroke-width="1" stroke-dasharray="3,3" marker-end="url(#arrow)"/>
+
+    <!-- Go to Step 5 -->
+    <rect x="280" y="620" width="100" height="50" fill="#e0f7fa" stroke="#00838f" stroke-width="2" rx="8"/>
+    <text x="330" y="642" fill="#333" font-family="Helvetica" font-size="11" font-weight="bold" text-anchor="middle">前往 Step 5</text>
+    <text x="330" y="660" fill="#666" font-family="Helvetica" font-size="9" text-anchor="middle">最終確認</text>
+
+    <!-- Arrow save to step5 -->
+    <path d="M330 580 L330 620" fill="none" stroke="#333" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+    <!-- Arrow load user to step5 -->
+    <path d="M815 360 L815 645 L380 645" fill="none" stroke="#388e3c" stroke-width="1.5" marker-end="url(#arrow-green)"/>
+    <text x="815" y="500" fill="#388e3c" font-family="Helvetica" font-size="9" text-anchor="middle">跳過驗證</text>
+
+    <!-- Legend -->
+    <rect x="680" y="450" width="200" height="130" fill="#fafafa" stroke="#e0e0e0" stroke-width="1" rx="5"/>
+    <text x="780" y="475" fill="#333" font-family="Helvetica" font-size="11" font-weight="bold" text-anchor="middle">圖例說明</text>
+
+    <rect x="700" y="495" width="15" height="15" fill="#e3f2fd" stroke="#1565c0" rx="2"/>
+    <text x="725" y="507" fill="#333" font-family="Helvetica" font-size="9">登入相關</text>
+
+    <rect x="790" y="495" width="15" height="15" fill="#c8e6c9" stroke="#388e3c" rx="2"/>
+    <text x="815" y="507" fill="#333" font-family="Helvetica" font-size="9">註冊相關</text>
+
+    <rect x="700" y="520" width="15" height="15" fill="#fff3e0" stroke="#e65100" rx="2"/>
+    <text x="725" y="532" fill="#333" font-family="Helvetica" font-size="9">判斷節點</text>
+
+    <rect x="790" y="520" width="15" height="15" fill="#fff9c4" stroke="#f9a825" rx="2"/>
+    <text x="815" y="532" fill="#333" font-family="Helvetica" font-size="9">Token 儲存</text>
+
+    <line x1="700" y1="555" x2="730" y2="555" stroke="#388e3c" stroke-width="2"/>
+    <text x="745" y="560" fill="#333" font-family="Helvetica" font-size="9">成功路徑</text>
+
+    <line x1="790" y1="555" x2="820" y2="555" stroke="#c62828" stroke-width="2"/>
+    <text x="835" y="560" fill="#333" font-family="Helvetica" font-size="9">失敗路徑</text>
+
+    <!-- Version -->
+    <text x="860" y="680" fill="#999" font-family="Helvetica" font-size="10" text-anchor="end">v1.0 | 約來客 Yulake</text>
+  </g>
+</svg>
