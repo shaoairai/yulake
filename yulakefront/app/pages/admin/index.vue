@@ -186,9 +186,9 @@ const handleAddBooking = () => {
   alert('尚未實作：新增預約\n\n此功能將在後續版本中提供。')
 }
 
-// 開啟行事曆（尚未實作）
+// 開啟行事曆
 const handleOpenCalendar = () => {
-  alert('尚未實作：行事曆視圖\n\n此功能將在後續版本中提供。')
+  router.push('/admin/calendar')
 }
 </script>
 

@@ -6,11 +6,93 @@
 
 ## 目錄
 
-1. [Phase 1: 資料庫設計](#phase-1-資料庫設計)
-2. [Phase 2: 後端專案建置](#phase-2-後端專案建置)
-3. [Phase 3: API 開發](#phase-3-api-開發)
-4. [Phase 4: 前後端串接](#phase-4-前後端串接)
-5. [Phase 5: 測試](#phase-5-測試)
+1. [Phase 0: 前端日曆元件（優先）](#phase-0-前端日曆元件優先)
+2. [Phase 1: 資料庫設計](#phase-1-資料庫設計)
+3. [Phase 2: 後端專案建置](#phase-2-後端專案建置)
+4. [Phase 3: API 開發](#phase-3-api-開發)
+5. [Phase 4: 前後端串接](#phase-4-前後端串接)
+6. [Phase 5: 測試](#phase-5-測試)
+
+---
+
+## Phase 0: 前端日曆元件（優先）
+
+> 🔥 **優先開發**：日曆視圖是前後台核心功能，需優先製作
+
+### 0.1 日曆元件設計
+
+#### 0.1.1 元件架構
+- [ ] 建立 `components/ui/AppCalendar.vue` - 通用日曆元件
+  - 支援月視圖、週視圖、日視圖切換
+  - 仿 Google Calendar 介面設計
+  - 支援拖放操作（未來擴充）
+  - 響應式設計（桌機/平板/手機）
+
+#### 0.1.2 視圖模式
+- [ ] **月視圖（Month View）**
+  - 顯示整月格子
+  - 每格顯示當日預約數量或摘要
+  - 點擊日期可展開詳情或切換至日視圖
+
+- [ ] **週視圖（Week View）**
+  - 橫軸：週一至週日
+  - 縱軸：時間軸（依營業時間範圍）
+  - 預約區塊顯示於對應時段
+  - 顏色區分不同設計師或狀態
+
+- [ ] **日視圖（Day View）**
+  - 單日時間軸詳細顯示
+  - 每位設計師一個欄位（多欄並列）
+  - 清楚顯示空檔與已預約時段
+
+#### 0.1.3 日曆元件功能
+- [ ] 日期導航（上一週/月、下一週/月、返回今天）
+- [ ] 視圖切換按鈕
+- [ ] 預約區塊點擊顯示詳情
+- [ ] 設計師篩選（顯示特定設計師）
+- [ ] 狀態顏色標示
+  - 待確認：黃色
+  - 已確認：綠色
+  - 已完成：灰色
+  - 已取消：紅色刪除線
+  - 未出席：紅色
+
+### 0.2 店家後台日曆頁面
+
+- [ ] 建立 `pages/admin/calendar.vue` - 店家預約日曆
+  - 整合 AppCalendar 元件
+  - 預設顯示週視圖
+  - 右側或彈窗顯示預約詳情
+  - 快速操作：確認、取消、標記完成
+  - 設計師篩選下拉選單
+  - 新增預約按鈕（點擊空白時段快速建立）
+
+- [ ] 更新 `components/admin/AdminSidebar.vue`
+  - 新增「預約日曆」導航項目
+  - 放置於「預約管理」下方或整合
+
+### 0.3 顧客前台日曆頁面
+
+- [ ] 建立 `pages/s/[code]/my-bookings.vue` - 我的預約日曆
+  - 顯示該顧客所有預約
+  - 預設月視圖
+  - 點擊可查看預約詳情
+  - 可從此頁面取消預約
+
+- [ ] 建立 `pages/s/[code]/booking/calendar.vue` - 預約選擇日曆
+  - 選擇日期時顯示月曆
+  - 有空檔的日期標示可選
+  - 選擇日期後顯示該日可用時段
+
+### 0.4 日曆 API 需求
+
+- [ ] `GET /api/salon/calendar` - 店家日曆資料
+  - 參數：start_date, end_date, stylist_id（選填）
+  - 回應：指定範圍內所有預約（含顧客、服務資訊）
+
+- [ ] `GET /api/salons/:code/calendar` - 公開日曆資料（顧客端）
+  - 參數：start_date, end_date, stylist_id
+  - 回應：已預約時段（不含顧客隱私資訊）
 
 ---
 
@@ -71,6 +153,18 @@
   - `require_confirmation` - 是否需要店家確認
   - `created_at` - 建立時間
   - `updated_at` - 更新時間
+
+- [ ] **special_dates（特殊日期設定）**
+  - `id` - 主鍵 UUID
+  - `salon_id` - 外鍵關聯 salons
+  - `date` - 日期
+  - `type` - 類型（closed: 公休 / special_hours: 特殊營業時間）
+  - `open_time` - 開始時間（type=special_hours 時使用）
+  - `close_time` - 結束時間（type=special_hours 時使用）
+  - `reason` - 原因/說明（如：國定假日、店休、特別營業）
+  - `created_at` - 建立時間
+  - `updated_at` - 更新時間
+  - 唯一約束：(salon_id, date)
 
 #### 1.2.2 設計師相關表
 - [ ] **stylists（設計師）**
@@ -180,8 +274,96 @@
   - `total_bookings` - 總預約次數
   - `completed_bookings` - 已完成次數
   - `no_show_count` - 爽約次數
+  - `total_spent` - 累積消費金額
   - `updated_at` - 更新時間
   - 唯一約束：(salon_id, customer_id)
+
+#### 1.2.7 會員等級相關表
+- [ ] **membership_tiers（會員等級定義）**
+  - `id` - 主鍵 UUID
+  - `salon_id` - 外鍵關聯 salons
+  - `name` - 等級名稱（如：一般會員、銀卡、金卡、VIP）
+  - `min_spent` - 最低累積消費金額
+  - `min_visits` - 最低來店次數（二擇一或兩者皆需）
+  - `discount_percent` - 折扣百分比（如：5 表示 95 折）
+  - `benefits` - 等級福利說明（JSON 或文字）
+  - `color` - 等級顯示顏色
+  - `sort_order` - 排序順序
+  - `is_active` - 是否啟用
+  - `created_at` - 建立時間
+  - `updated_at` - 更新時間
+
+- [ ] **customer_memberships（顧客會員等級）**
+  - `id` - 主鍵 UUID
+  - `salon_id` - 外鍵關聯 salons
+  - `customer_id` - 外鍵關聯 customers
+  - `tier_id` - 外鍵關聯 membership_tiers
+  - `upgraded_at` - 升級時間
+  - `expires_at` - 等級到期時間（可選，用於限時等級）
+  - `created_at` - 建立時間
+  - `updated_at` - 更新時間
+  - 唯一約束：(salon_id, customer_id)
+
+#### 1.2.8 行銷推播相關表
+- [ ] **email_templates（Email 範本）**
+  - `id` - 主鍵 UUID
+  - `salon_id` - 外鍵關聯 salons（NULL 表示系統範本）
+  - `type` - 範本類型（booking_confirm/booking_reminder/birthday/revisit/promotion）
+  - `name` - 範本名稱
+  - `subject` - 信件主旨
+  - `body` - 信件內容（支援變數替換，如 {{customer_name}}）
+  - `is_active` - 是否啟用
+  - `created_at` - 建立時間
+  - `updated_at` - 更新時間
+
+- [ ] **email_campaigns（Email 行銷活動）**
+  - `id` - 主鍵 UUID
+  - `salon_id` - 外鍵關聯 salons
+  - `name` - 活動名稱
+  - `template_id` - 外鍵關聯 email_templates
+  - `target_type` - 目標客群（all/tier/inactive/birthday_month/custom）
+  - `target_config` - 目標設定（JSON，如 tier_ids、inactive_days 等）
+  - `scheduled_at` - 排程發送時間
+  - `sent_at` - 實際發送時間
+  - `status` - 狀態（draft/scheduled/sending/sent/cancelled）
+  - `total_recipients` - 總收件人數
+  - `sent_count` - 已發送數
+  - `open_count` - 開啟數
+  - `click_count` - 點擊數
+  - `created_at` - 建立時間
+  - `updated_at` - 更新時間
+
+- [ ] **email_logs（Email 發送紀錄）**
+  - `id` - 主鍵 UUID
+  - `campaign_id` - 外鍵關聯 email_campaigns（可 NULL，用於自動發送）
+  - `salon_id` - 外鍵關聯 salons
+  - `customer_id` - 外鍵關聯 customers
+  - `email` - 收件 Email
+  - `type` - 類型（campaign/booking_confirm/booking_reminder/birthday/revisit）
+  - `subject` - 實際主旨
+  - `status` - 狀態（pending/sent/failed/bounced）
+  - `sent_at` - 發送時間
+  - `opened_at` - 開啟時間
+  - `clicked_at` - 點擊時間
+  - `error_message` - 錯誤訊息
+  - `created_at` - 建立時間
+
+- [ ] **auto_email_rules（自動發信規則）**
+  - `id` - 主鍵 UUID
+  - `salon_id` - 外鍵關聯 salons
+  - `type` - 規則類型
+    - `booking_confirm` - 預約確認通知
+    - `booking_reminder` - 預約提醒（前 N 小時）
+    - `birthday` - 生日祝福（當月/當日）
+    - `revisit` - 回訪提醒（超過 N 天未來店）
+    - `no_show_warning` - 爽約警告
+  - `template_id` - 外鍵關聯 email_templates
+  - `config` - 規則設定（JSON）
+    - 如 `{"hours_before": 24}` 表示預約前 24 小時發送
+    - 如 `{"inactive_days": 60}` 表示 60 天未來店時發送
+  - `is_active` - 是否啟用
+  - `created_at` - 建立時間
+  - `updated_at` - 更新時間
 
 ### 1.3 建立資料庫
 - [ ] 撰寫 SQL 建表腳本（或使用 ORM migration）
@@ -453,6 +635,127 @@
   - 請求：slot_interval, min_advance_hours, max_advance_days, require_confirmation
   - 回應：更新後的預約規則
 
+#### 3.4.7 特殊日期管理
+- [ ] `GET /api/salon/special-dates` - 取得特殊日期列表
+  - 需要：Bearer Token（店家）
+  - 可選參數：start_date, end_date
+  - 回應：特殊日期列表
+
+- [ ] `POST /api/salon/special-dates` - 新增特殊日期
+  - 需要：Bearer Token（店家）
+  - 請求：date, type (closed/special_hours), open_time, close_time, reason
+  - 回應：新增的特殊日期
+
+- [ ] `PUT /api/salon/special-dates/:id` - 更新特殊日期
+  - 需要：Bearer Token（店家）
+  - 請求：type, open_time, close_time, reason
+  - 回應：更新後的特殊日期
+
+- [ ] `DELETE /api/salon/special-dates/:id` - 刪除特殊日期
+  - 需要：Bearer Token（店家）
+  - 回應：成功/失敗
+
+#### 3.4.8 會員等級管理
+- [ ] `GET /api/salon/membership-tiers` - 取得會員等級列表
+  - 需要：Bearer Token（店家）
+  - 回應：所有會員等級（含停用）
+
+- [ ] `POST /api/salon/membership-tiers` - 新增會員等級
+  - 需要：Bearer Token（店家）
+  - 請求：name, min_spent, min_visits, discount_percent, benefits, color
+  - 回應：新增的等級
+
+- [ ] `PUT /api/salon/membership-tiers/:id` - 更新會員等級
+  - 需要：Bearer Token（店家）
+  - 請求：name, min_spent, min_visits, discount_percent, benefits, color, is_active
+  - 回應：更新後的等級
+
+- [ ] `DELETE /api/salon/membership-tiers/:id` - 刪除會員等級
+  - 需要：Bearer Token（店家）
+  - 驗證：無顧客使用此等級
+  - 回應：成功/失敗
+
+- [ ] `PUT /api/salon/customers/:id/tier` - 手動調整顧客等級
+  - 需要：Bearer Token（店家）
+  - 請求：tier_id
+  - 回應：更新後的顧客資訊
+
+#### 3.4.9 Email 行銷管理
+- [ ] `GET /api/salon/email-templates` - 取得 Email 範本列表
+  - 需要：Bearer Token（店家）
+  - 回應：店家範本 + 系統預設範本
+
+- [ ] `POST /api/salon/email-templates` - 新增 Email 範本
+  - 需要：Bearer Token（店家）
+  - 請求：type, name, subject, body
+  - 回應：新增的範本
+
+- [ ] `PUT /api/salon/email-templates/:id` - 更新 Email 範本
+  - 需要：Bearer Token（店家）
+  - 請求：name, subject, body, is_active
+  - 回應：更新後的範本
+
+- [ ] `DELETE /api/salon/email-templates/:id` - 刪除 Email 範本
+  - 需要：Bearer Token（店家）
+  - 驗證：非系統範本
+  - 回應：成功/失敗
+
+- [ ] `POST /api/salon/email-templates/:id/preview` - 預覽 Email 範本
+  - 需要：Bearer Token（店家）
+  - 請求：test_data（用於變數替換）
+  - 回應：渲染後的 HTML
+
+#### 3.4.10 Email 行銷活動
+- [ ] `GET /api/salon/email-campaigns` - 取得行銷活動列表
+  - 需要：Bearer Token（店家）
+  - 可選參數：status, page, limit
+  - 回應：活動列表（含統計數據）
+
+- [ ] `POST /api/salon/email-campaigns` - 建立行銷活動
+  - 需要：Bearer Token（店家）
+  - 請求：name, template_id, target_type, target_config, scheduled_at
+  - 回應：新增的活動
+
+- [ ] `GET /api/salon/email-campaigns/:id` - 取得活動詳情
+  - 需要：Bearer Token（店家）
+  - 回應：活動詳情 + 發送統計
+
+- [ ] `PUT /api/salon/email-campaigns/:id` - 更新行銷活動
+  - 需要：Bearer Token（店家）
+  - 驗證：僅 draft 狀態可編輯
+  - 請求：name, template_id, target_type, target_config, scheduled_at
+  - 回應：更新後的活動
+
+- [ ] `POST /api/salon/email-campaigns/:id/send` - 立即發送活動
+  - 需要：Bearer Token（店家）
+  - 驗證：狀態為 draft 或 scheduled
+  - 回應：更新後的活動（狀態變更為 sending）
+
+- [ ] `POST /api/salon/email-campaigns/:id/cancel` - 取消排程活動
+  - 需要：Bearer Token（店家）
+  - 驗證：狀態為 scheduled
+  - 回應：更新後的活動
+
+- [ ] `GET /api/salon/email-campaigns/:id/recipients` - 預覽收件人列表
+  - 需要：Bearer Token（店家）
+  - 回應：符合條件的顧客列表與數量
+
+#### 3.4.11 自動發信規則
+- [ ] `GET /api/salon/auto-email-rules` - 取得自動發信規則
+  - 需要：Bearer Token（店家）
+  - 回應：所有自動發信規則
+
+- [ ] `PUT /api/salon/auto-email-rules/:type` - 更新自動發信規則
+  - 需要：Bearer Token（店家）
+  - 請求：template_id, config, is_active
+  - 回應：更新後的規則
+
+#### 3.4.12 Email 發送紀錄
+- [ ] `GET /api/salon/email-logs` - 取得發送紀錄
+  - 需要：Bearer Token（店家）
+  - 可選參數：customer_id, type, status, date_from, date_to, page, limit
+  - 回應：發送紀錄列表
+
 ### 3.5 API 文件
 - [ ] 設定 Swagger/OpenAPI
 - [ ] 為所有 API 撰寫文件
@@ -533,6 +836,40 @@
   - 讀取店家設定
   - 儲存變更
   - 複製預約連結
+
+- [ ] `pages/admin/calendar.vue` - 串接日曆 API
+  - 日曆元件整合
+  - 預約資料載入
+  - 快速操作功能
+
+- [ ] `pages/admin/special-dates.vue` - 串接特殊日期 API（或整合至設定頁）
+  - 特殊日期列表
+  - 新增/編輯/刪除公休或特殊營業
+
+- [ ] `pages/admin/membership.vue` - 會員等級管理頁面
+  - 會員等級列表
+  - 新增/編輯等級
+  - 設定升級條件與優惠
+
+- [ ] `pages/admin/marketing/index.vue` - Email 行銷總覽
+  - 行銷活動列表
+  - 發送統計摘要
+
+- [ ] `pages/admin/marketing/campaigns/index.vue` - 行銷活動管理
+  - 活動列表
+  - 建立新活動
+  - 排程/發送/取消
+
+- [ ] `pages/admin/marketing/templates.vue` - Email 範本管理
+  - 範本列表
+  - 編輯範本內容
+  - 預覽功能
+
+- [ ] `pages/admin/marketing/automation.vue` - 自動發信設定
+  - 預約確認通知設定
+  - 預約提醒設定
+  - 生日祝福設定
+  - 回訪提醒設定
 
 #### 4.2.2 店家登入頁面
 - [ ] 建立 `pages/admin/login.vue` - 店家登入頁
@@ -822,3 +1159,5 @@ yulakeback/
 | 版本 | 日期 | 變更說明 |
 |------|------|----------|
 | v1.0 | 2025-01-05 | 初版建立 |
+| v1.1 | 2025-01-05 | 顧客登入方式改為 Email |
+| v2.0 | 2025-01-05 | 新增功能：日曆元件（Phase 0）、特殊日期設定、會員等級制度、Email 行銷推播 |

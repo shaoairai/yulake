@@ -47,6 +47,7 @@ import { useRoute } from 'vue-router'
 // 導航項目定義
 const navItems = [
   { path: '/admin', label: '今日總覽', icon: '📊' },
+  { path: '/admin/calendar', label: '預約日曆', icon: '📆' },
   { path: '/admin/bookings', label: '預約管理', icon: '📅' },
   { path: '/admin/customers', label: '顧客與黑名單', icon: '👥' },
   { path: '/admin/services', label: '服務與價目', icon: '💅' },

@@ -9,6 +9,13 @@ export default defineNuxtConfig({
   // 全域 CSS
   css: ['~/assets/css/main.css'],
 
+  // 元件設定 - 移除路徑前綴讓元件可直接使用原名稱
+  components: [
+    { path: '~/components/ui', prefix: '' },
+    { path: '~/components/admin', prefix: 'Admin' },
+    { path: '~/components', pathPrefix: false }
+  ],
+
   // Vite 設定
   vite: {
     server: {
