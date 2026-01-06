@@ -7,6 +7,11 @@ WORKDIR /app
 COPY yulakeback/requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
+# 複製 entrypoint 腳本
+COPY yulakeback/entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+
 # 開發環境使用掛載，不需要複製程式碼
-# 啟動 Flask 開發伺服器（支援熱重載）
+# 使用 entrypoint 處理初始化，CMD 為預設指令
+ENTRYPOINT ["/entrypoint.sh"]
 CMD ["python", "app.py"]

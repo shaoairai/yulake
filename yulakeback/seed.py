@@ -1,6 +1,13 @@
 """
 種子資料腳本 - 初始化測試資料
-執行方式: python seed.py
+
+⚠️  警告：此腳本僅供「全新空資料庫」初始化使用！
+⚠️  已有資料的資料庫執行此腳本會被安全機制阻擋。
+⚠️  若需強制重建，請使用 --force 參數（會刪除所有資料！）
+
+執行方式:
+  python seed.py          # 僅在空資料庫時執行
+  python seed.py --force  # 強制重建（危險！會刪除所有資料）
 """
 import os
 import sys
@@ -22,15 +29,53 @@ from app.models import (
 )
 
 
-def seed_data():
-    """建立測試資料"""
+def check_database_has_data():
+    """檢查資料庫是否已有資料"""
+    # 檢查關鍵表是否有資料
+    salon_count = Salon.query.count()
+    customer_count = Customer.query.count()
+    booking_count = Booking.query.count()
+    return salon_count > 0 or customer_count > 0 or booking_count > 0
+
+
+def seed_data(force=False):
+    """
+    建立測試資料
+
+    Args:
+        force: 若為 True，則強制重建資料庫（危險！）
+    """
     app = create_app()
 
     with app.app_context():
-        # 清空現有資料（開發環境使用）
-        print("清空現有資料...")
-        db.drop_all()
-        db.create_all()
+        # ===== 安全檢查：防止誤刪現有資料 =====
+        has_data = check_database_has_data()
+
+        if has_data and not force:
+            print("\n" + "=" * 60)
+            print("❌ 安全檢查失敗：資料庫已有資料！")
+            print("=" * 60)
+            print("\n為保護現有資料，種子資料腳本已終止。")
+            print("\n若您確定要刪除所有資料並重建，請使用：")
+            print("  python seed.py --force")
+            print("\n⚠️  警告：--force 會刪除所有現有資料，包括：")
+            print("  - 所有店家資料")
+            print("  - 所有顧客資料")
+            print("  - 所有預約紀錄")
+            print("  - 所有其他業務資料")
+            print("\n此操作無法復原！\n")
+            sys.exit(1)
+
+        if has_data and force:
+            print("\n" + "=" * 60)
+            print("⚠️  警告：即將刪除所有資料！")
+            print("=" * 60)
+            print("\n偵測到 --force 參數，將清空並重建資料庫...")
+            print("清空現有資料...")
+            db.drop_all()
+            db.create_all()
+        else:
+            print("\n偵測到空資料庫，開始初始化...")
 
         print("建立店家資料...")
         # ===== 建立店家 =====
@@ -496,4 +541,17 @@ def seed_data():
 
 
 if __name__ == '__main__':
-    seed_data()
+    # 解析命令列參數
+    force_mode = '--force' in sys.argv
+
+    if force_mode:
+        # 二次確認
+        print("\n" + "!" * 60)
+        print("!!! 危險操作：即將刪除所有資料庫資料 !!!")
+        print("!" * 60)
+        confirm = input("\n請輸入 'DELETE ALL DATA' 確認刪除所有資料: ")
+        if confirm != 'DELETE ALL DATA':
+            print("\n操作已取消。")
+            sys.exit(0)
+
+    seed_data(force=force_mode)
