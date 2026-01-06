@@ -382,53 +382,49 @@
 ## Phase 2: 後端專案建置
 
 ### 2.1 技術選型
-- [ ] 決定後端框架（建議：Node.js + Express/Fastify 或 Python + FastAPI）
-- [ ] 決定 ORM 工具（建議：Prisma、TypeORM 或 SQLAlchemy）
-- [ ] 決定認證方案（JWT Token）
-- [ ] 決定 API 文件工具（Swagger/OpenAPI）
+- [x] 決定後端框架（Python + Flask + Gunicorn）
+- [x] 決定 ORM 工具（Flask-SQLAlchemy）
+- [x] 決定認證方案（JWT Token with PyJWT）
+- [x] 決定 API 文件工具（flask-restx / Swagger UI）
 
 ### 2.2 專案初始化
-- [ ] 建立後端專案目錄結構
-- [ ] 初始化專案（package.json 或 pyproject.toml）
-- [ ] 安裝必要依賴套件
-- [ ] 設定 TypeScript（如使用 Node.js）
-- [ ] 設定 ESLint/Prettier 程式碼規範
-- [ ] 建立環境變數設定檔（.env.example）
+- [x] 建立後端專案目錄結構
+- [x] 初始化專案（requirements.txt）
+- [x] 安裝必要依賴套件
+- [x] 設定 Docker 開發環境
+- [x] 建立 entrypoint.sh 自動初始化
 
 ### 2.3 專案架構設計
-- [ ] 設計目錄結構：
+- [x] 設計目錄結構：
   ```
   yulakeback/
-  ├── src/
-  │   ├── config/          # 設定檔
-  │   ├── controllers/     # 控制器
-  │   ├── middlewares/     # 中介層
+  ├── app/
+  │   ├── __init__.py      # 應用程式入口
   │   ├── models/          # 資料模型
-  │   ├── routes/          # 路由定義
-  │   ├── services/        # 業務邏輯
-  │   ├── utils/           # 工具函式
-  │   ├── validators/      # 驗證器
-  │   └── app.ts           # 應用程式入口
-  ├── prisma/              # Prisma schema & migrations
-  ├── tests/               # 測試檔案
-  └── docker-compose.yml   # Docker 設定
+  │   ├── routes/          # API 路由（flask-restx）
+  │   ├── services/        # 業務邏輯（預留）
+  │   └── utils/           # 工具函式
+  ├── app.py               # 啟動檔
+  ├── seed.py              # 種子資料
+  ├── entrypoint.sh        # Docker entrypoint
+  └── requirements.txt     # 依賴套件
   ```
 
 ### 2.4 基礎設施建置
-- [ ] 設定資料庫連線
-- [ ] 設定 CORS 跨域
-- [ ] 設定錯誤處理中介層
-- [ ] 設定請求日誌記錄
-- [ ] 設定 API 回應格式標準化
-- [ ] 設定 JWT 認證中介層
-- [ ] 建立 Docker 開發環境
+- [x] 設定資料庫連線（PostgreSQL）
+- [x] 設定 CORS 跨域
+- [x] 設定錯誤處理中介層
+- [x] 設定 API 回應格式標準化
+- [x] 設定 JWT 認證中介層
+- [x] 建立 Docker 開發環境
+- [x] Swagger UI 文件（/docs）
 
 ### 2.5 共用模組開發
-- [ ] 建立統一回應格式工具（ApiResponse）
-- [ ] 建立錯誤碼定義與錯誤處理
-- [ ] 建立分頁查詢工具
-- [ ] 建立日期時間處理工具
-- [ ] 建立密碼加密/驗證工具
+- [x] 建立統一回應格式工具（ApiResponse）
+- [x] 建立錯誤碼定義與錯誤處理（ErrorCode, ApiError）
+- [x] 建立分頁查詢工具（paginate）
+- [x] 建立 JWT 認證工具（create_token, verify_token）
+- [x] 建立裝飾器（salon_required, customer_required）
 
 ---
 

@@ -1,9 +1,27 @@
-from flask import Flask
+from flask import Flask, jsonify
 from flask_cors import CORS
 from flask_sqlalchemy import SQLAlchemy
+from flask_restx import Api
 import os
 
 db = SQLAlchemy()
+
+# Swagger API 設定
+api = Api(
+    title='Yulake API',
+    version='1.0',
+    description='約來客預約系統 API 文件',
+    doc='/docs',  # Swagger UI 路徑
+    authorizations={
+        'Bearer': {
+            'type': 'apiKey',
+            'in': 'header',
+            'name': 'Authorization',
+            'description': '輸入: Bearer <token>'
+        }
+    },
+    security='Bearer'
+)
 
 
 def create_app():
@@ -12,12 +30,14 @@ def create_app():
     # CORS 設定
     CORS(app)
 
-    # 資料庫設定
+    # 應用程式設定
     app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv(
         'DATABASE_URL',
         'postgresql://yulake:yulake@localhost:5432/yulake'
     )
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+    app.config['JWT_SECRET'] = os.getenv('JWT_SECRET', 'yulake-dev-secret-key-change-in-production')
+    app.config['RESTX_MASK_SWAGGER'] = False  # 不隱藏 X-Fields header
 
     # 初始化資料庫
     db.init_app(app)
@@ -25,9 +45,35 @@ def create_app():
     # 載入所有資料模型（確保建表時能找到所有模型）
     from app import models  # noqa: F401
 
-    # 註冊路由
-    from app.routes import main
-    app.register_blueprint(main.bp)
+    # 初始化 API (Swagger)
+    api.init_app(app)
+
+    # 註冊 API 命名空間
+    from app.routes.health import health_ns
+    from app.routes.auth import auth_ns
+    from app.routes.public import public_ns
+    from app.routes.salon import salon_ns
+
+    api.add_namespace(health_ns, path='/api')
+    api.add_namespace(auth_ns, path='/api/auth')
+    api.add_namespace(public_ns, path='/api/salons')
+    api.add_namespace(salon_ns, path='/api/salon')
+
+    # 全域錯誤處理
+    @app.errorhandler(Exception)
+    def handle_exception(error):
+        from app.utils.errors import ApiError
+        if isinstance(error, ApiError):
+            return jsonify(error.to_dict()), error.status_code
+        # 非預期錯誤
+        app.logger.error(f'Unhandled exception: {error}')
+        return jsonify({
+            'success': False,
+            'error': {
+                'code': 'INTERNAL_ERROR',
+                'message': '系統內部錯誤'
+            }
+        }), 500
 
     # 建立資料表
     with app.app_context():
