@@ -87,7 +87,7 @@
 
 ### 0.4 日曆 API 需求
 
-- [ ] `GET /api/salon/calendar` - 店家日曆資料
+- [x] `GET /api/salon/calendar` - 店家日曆資料
   - 參數：start_date, end_date, stylist_id（選填）
   - 回應：指定範圍內所有預約（含顧客、服務資訊）
 
@@ -563,14 +563,14 @@
 ### 4.1 前端 API 層建立
 
 #### 4.1.1 HTTP Client 設定
-- [ ] 建立 `composables/useApi.ts` - API 呼叫封裝
+- [x] 建立 `composables/useApi.ts` - API 呼叫封裝
   - 設定 base URL（從環境變數讀取）
   - 設定請求攔截器（自動帶入 Token）
   - 設定回應攔截器（統一錯誤處理）
   - 處理 401 錯誤（Token 過期）
 
 #### 4.1.2 認證相關
-- [ ] 建立 `composables/useAuth.ts` - 認證狀態管理
+- [x] 建立 `composables/useAuth.ts` - 認證狀態管理
   - 顧客登入/註冊
   - 店家登入
   - Token 存取（localStorage）
@@ -578,7 +578,7 @@
   - 自動驗證 Token 有效性
 
 #### 4.1.3 顧客前台 API
-- [ ] 建立 `composables/useBookingApi.ts` - 預約相關 API
+- [x] 建立 `composables/useBookingApi.ts` - 預約相關 API
   - 取得店家資訊
   - 取得服務列表
   - 取得設計師列表
@@ -588,7 +588,7 @@
   - 取消預約
 
 #### 4.1.4 店家後台 API
-- [ ] 更新 `composables/useAdminMockData.ts` → `composables/useAdminApi.ts`
+- [x] 更新 `composables/useAdminMockData.ts` → `composables/useAdminApi.ts`
   - 取得總覽數據
   - 預約管理 CRUD
   - 顧客管理 CRUD
@@ -599,152 +599,152 @@
 ### 4.2 前端頁面串接
 
 #### 4.2.1 店家後台頁面
-- [ ] `pages/admin/index.vue` - 串接 Dashboard API
+- [x] `pages/admin/index.vue` - 串接 Dashboard API
   - 統計數據
   - 今日預約列表
   - 提醒列表
 
-- [ ] `pages/admin/bookings/index.vue` - 串接預約管理 API
+- [x] `pages/admin/bookings/index.vue` - 串接預約管理 API
   - 預約列表查詢
   - 篩選功能
   - 狀態變更
   - 預約詳情
 
-- [ ] `pages/admin/customers/index.vue` - 串接顧客管理 API
+- [x] `pages/admin/customers/index.vue` - 串接顧客管理 API
   - 顧客列表查詢
   - 搜尋與篩選
   - 黑名單切換
   - 備註編輯
 
-- [ ] `pages/admin/services.vue` - 串接服務管理 API
+- [x] `pages/admin/services.vue` - 串接服務管理 API
   - 服務列表
   - 新增/編輯服務
   - 啟用/停用服務
 
-- [ ] `pages/admin/stylists.vue` - 串接設計師管理 API
+- [x] `pages/admin/stylists.vue` - 串接設計師管理 API
   - 設計師列表
   - 新增/編輯設計師
   - 啟用/停用設計師
 
-- [ ] `pages/admin/settings.vue` - 串接店家設定 API
+- [x] `pages/admin/settings.vue` - 串接店家設定 API
   - 讀取店家設定
   - 儲存變更
   - 複製預約連結
 
-- [ ] `pages/admin/calendar.vue` - 串接日曆 API
+- [x] `pages/admin/calendar.vue` - 串接日曆 API
   - 日曆元件整合
   - 預約資料載入
   - 快速操作功能
 
-- [ ] `pages/admin/special-dates.vue` - 串接特殊日期 API（或整合至設定頁）
+- [x] `pages/admin/special-dates.vue` - 串接特殊日期 API
   - 特殊日期列表
   - 新增/編輯/刪除公休或特殊營業
 
-- [ ] `pages/admin/membership.vue` - 會員等級管理頁面
+- [x] `pages/admin/membership.vue` - 會員等級管理頁面
   - 會員等級列表
   - 新增/編輯等級
   - 設定升級條件與優惠
 
-- [ ] `pages/admin/marketing/index.vue` - Email 行銷總覽
+- [x] `pages/admin/marketing/index.vue` - Email 行銷總覽
   - 行銷活動列表
   - 發送統計摘要
 
-- [ ] `pages/admin/marketing/campaigns/index.vue` - 行銷活動管理
+- [x] `pages/admin/marketing/campaigns/index.vue` - 行銷活動管理
   - 活動列表
   - 建立新活動
   - 排程/發送/取消
 
-- [ ] `pages/admin/marketing/templates.vue` - Email 範本管理
+- [x] `pages/admin/marketing/templates.vue` - Email 範本管理
   - 範本列表
   - 編輯範本內容
   - 預覽功能
 
-- [ ] `pages/admin/marketing/automation.vue` - 自動發信設定
+- [x] `pages/admin/marketing/automation.vue` - 自動發信設定
   - 預約確認通知設定
   - 預約提醒設定
   - 生日祝福設定
   - 回訪提醒設定
 
 #### 4.2.2 店家登入頁面
-- [ ] 建立 `pages/admin/login.vue` - 店家登入頁
+- [x] 建立 `pages/admin/login.vue` - 店家登入頁
   - Email + 密碼登入表單
   - 登入成功導向 Dashboard
   - 錯誤訊息顯示
 
 #### 4.2.3 顧客前台頁面（如需要）
-- [ ] 建立預約流程頁面
-- [ ] 建立我的預約頁面
-- [ ] 建立登入/註冊頁面
+- [x] 建立預約流程頁面
+- [x] 建立我的預約頁面
+- [x] 建立登入/註冊頁面
 
 ### 4.3 狀態管理優化
-- [ ] 建立全域狀態管理（如需要，可用 Pinia）
-- [ ] 處理載入狀態顯示
-- [ ] 處理錯誤狀態顯示
+- [x] 建立全域狀態管理（如需要，可用 Pinia）
+- [x] 處理載入狀態顯示
+- [x] 處理錯誤狀態顯示
 - [ ] 實作樂觀更新（Optimistic Update）
 
 ### 4.4 環境設定
-- [ ] 建立 `.env.development` 設定開發環境 API URL
-- [ ] 建立 `.env.production` 設定正式環境 API URL
-- [ ] 更新 `nuxt.config.ts` 讀取環境變數
+- [x] 建立 `.env.development` 設定開發環境 API URL
+- [x] 建立 `.env.production` 設定正式環境 API URL
+- [x] 更新 `nuxt.config.ts` 讀取環境變數
 
 ---
 
 ## Phase 5: 測試
 
 ### 5.1 後端單元測試
-- [ ] 設定測試框架（Jest/Vitest/Pytest）
-- [ ] 建立測試資料庫
+- [x] 設定測試框架（Jest/Vitest/Pytest）
+- [x] 建立測試資料庫
 
 #### 5.1.1 工具函式測試
-- [ ] 密碼加密/驗證測試
-- [ ] JWT Token 產生/驗證測試
-- [ ] 日期時間工具測試
-- [ ] 時段計算邏輯測試
+- [x] 密碼加密/驗證測試
+- [x] JWT Token 產生/驗證測試
+- [x] 日期時間工具測試
+- [x] 時段計算邏輯測試
 
 #### 5.1.2 Service 層測試
-- [ ] 認證服務測試
+- [x] 認證服務測試
 - [ ] 預約服務測試（含時段衝突、黑名單檢查）
 - [ ] 顧客服務測試
 - [ ] 服務項目服務測試
 - [ ] 設計師服務測試
 
 ### 5.2 後端 API 測試
-- [ ] 設定 API 測試工具（Supertest/Pytest）
+- [x] 設定 API 測試工具（Supertest/Pytest）
 
 #### 5.2.1 認證 API 測試
-- [ ] 顧客註冊測試
+- [x] 顧客註冊測試
   - 正常註冊
   - Email 已存在
   - 格式驗證錯誤
-- [ ] 顧客登入測試
+- [x] 顧客登入測試
   - 正常登入
   - 密碼錯誤
   - 帳號不存在
-- [ ] 店家登入測試
+- [x] 店家登入測試
 
 #### 5.2.2 公開 API 測試
-- [ ] 取得店家資訊測試
-- [ ] 取得服務列表測試
-- [ ] 取得設計師列表測試
-- [ ] 取得可用時段測試
+- [x] 取得店家資訊測試
+- [x] 取得服務列表測試
+- [x] 取得設計師列表測試
+- [x] 取得可用時段測試
   - 正常取得
   - 無可用時段
   - 參數錯誤
 
 #### 5.2.3 預約 API 測試
-- [ ] 建立預約測試
+- [x] 建立預約測試
   - 正常建立
   - 時段衝突
   - 黑名單顧客
   - 未登入
-- [ ] 取消預約測試
-- [ ] 狀態變更測試
+- [x] 取消預約測試
+- [x] 狀態變更測試
 
 #### 5.2.4 店家 API 測試
-- [ ] 預約管理測試
-- [ ] 顧客管理測試
-- [ ] 服務管理測試
-- [ ] 設計師管理測試
+- [x] 預約管理測試
+- [x] 顧客管理測試
+- [x] 服務管理測試
+- [x] 設計師管理測試
 
 ### 5.3 前端測試
 - [ ] 設定測試框架（Vitest + Vue Test Utils）
