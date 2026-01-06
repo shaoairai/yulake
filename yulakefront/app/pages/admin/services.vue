@@ -167,9 +167,10 @@ import { ref, reactive } from 'vue'
 import { useAdminMockData } from '~/composables/useAdminMockData'
 import type { Service } from '~/composables/useAdminMockData'
 
-// 設定使用 admin layout
+// 設定使用 admin layout 與認證
 definePageMeta({
-  layout: 'admin'
+  layout: 'admin',
+  middleware: 'auth'
 })
 
 // 取得假資料

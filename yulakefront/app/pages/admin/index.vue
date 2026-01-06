@@ -127,9 +127,10 @@ import { useRouter } from 'vue-router'
 import { useAdminMockData } from '~/composables/useAdminMockData'
 import type { BookingStatus } from '~/composables/useAdminMockData'
 
-// 設定使用 admin layout
+// 設定使用 admin layout 與認證
 definePageMeta({
-  layout: 'admin'
+  layout: 'admin',
+  middleware: 'auth'
 })
 
 // 路由

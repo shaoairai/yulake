@@ -16,6 +16,13 @@ export default defineNuxtConfig({
     { path: '~/components', pathPrefix: false }
   ],
 
+  // 執行時設定
+  runtimeConfig: {
+    public: {
+      apiUrl: process.env.NUXT_PUBLIC_API_URL || 'http://localhost:5000'
+    }
+  },
+
   // Vite 設定
   vite: {
     server: {

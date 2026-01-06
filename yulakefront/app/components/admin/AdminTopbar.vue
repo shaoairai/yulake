@@ -25,15 +25,23 @@
       </button>
 
       <!-- 使用者資訊 -->
-      <div class="admin-topbar__user">
-        <div class="admin-topbar__user-avatar">
-          {{ userInitial }}
+      <div class="admin-topbar__user-wrapper">
+        <div class="admin-topbar__user" @click="toggleUserMenu">
+          <div class="admin-topbar__user-avatar">
+            {{ userInitial }}
+          </div>
+          <div class="admin-topbar__user-info">
+            <span class="admin-topbar__user-name">{{ userName }}</span>
+            <span class="admin-topbar__user-role">{{ userRole }}</span>
+          </div>
+          <span class="admin-topbar__user-arrow">▼</span>
         </div>
-        <div class="admin-topbar__user-info">
-          <span class="admin-topbar__user-name">{{ userName }}</span>
-          <span class="admin-topbar__user-role">管理員</span>
+        <!-- 下拉選單 -->
+        <div v-if="showUserMenu" class="admin-topbar__dropdown">
+          <button class="admin-topbar__dropdown-item" @click="handleLogout">
+            登出
+          </button>
         </div>
-        <span class="admin-topbar__user-arrow">▼</span>
       </div>
     </div>
   </header>
@@ -44,19 +52,30 @@
  * AdminTopbar - 廠商後台頂部工具列
  * 顯示店家名稱、通知與使用者資訊
  */
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
+import { useAuth } from '~/composables/useAuth'
 
 // 定義事件
 defineEmits<{
   toggleSidebar: []
 }>()
 
-// 店家名稱（之後會從 composable 取得）
-const salonName = computed(() => '霧光美甲工作室')
+const router = useRouter()
+const { salonUser, salonInfo, logout } = useAuth()
 
-// 使用者資訊（之後會從 composable 取得）
-const userName = computed(() => '王小姐')
+// 下拉選單狀態
+const showUserMenu = ref(false)
+
+// 店家名稱
+const salonName = computed(() => salonInfo.value?.name || '店家後台')
+
+// 使用者資訊
+const userName = computed(() => salonUser.value?.name || '管理員')
 const userInitial = computed(() => userName.value.charAt(0))
+const userRole = computed(() => {
+  const role = salonUser.value?.role
+  return role === 'owner' ? '店長' : '員工'
+})
 
 // 通知數量
 const notificationCount = computed(() => 3)
@@ -64,6 +83,17 @@ const notificationCount = computed(() => 3)
 // 通知按鈕點擊處理
 const handleNotification = () => {
   alert('通知功能尚未實作\n\n您有 3 則新通知：\n- 新預約：李小姐預約了基礎凝膠\n- 預約提醒：明日 10:00 有預約\n- 顧客取消：陳小姐取消了預約')
+}
+
+// 切換使用者選單
+const toggleUserMenu = () => {
+  showUserMenu.value = !showUserMenu.value
+}
+
+// 登出
+const handleLogout = () => {
+  logout()
+  router.push('/admin/login')
 }
 </script>
 
@@ -219,6 +249,41 @@ const handleNotification = () => {
 .admin-topbar__user-arrow {
   font-size: 10px;
   color: var(--color-text-muted);
+}
+
+/* 使用者下拉選單 */
+.admin-topbar__user-wrapper {
+  position: relative;
+}
+
+.admin-topbar__dropdown {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin-top: var(--spacing-xs);
+  min-width: 120px;
+  background-color: var(--color-bg-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  z-index: 100;
+}
+
+.admin-topbar__dropdown-item {
+  display: block;
+  width: 100%;
+  padding: var(--spacing-sm) var(--spacing-md);
+  border: none;
+  background: transparent;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-primary);
+  text-align: left;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.admin-topbar__dropdown-item:hover {
+  background-color: var(--color-bg-hover);
 }
 
 /* 響應式：小螢幕 */
