@@ -219,9 +219,9 @@
  * 廠商後台 - 顧客與黑名單管理頁面
  * 提供顧客的查詢、備註編輯與黑名單管理
  */
-import { ref, computed } from 'vue'
-import { useAdminMockData } from '~/composables/useAdminMockData'
-import type { Customer, BookingStatus } from '~/composables/useAdminMockData'
+import { ref, computed, onMounted } from 'vue'
+import { useAdminApi } from '~/composables/useAdminApi'
+import type { BookingStatus, AdminCustomer, AdminBooking } from '~/composables/useAdminApi'
 
 // 設定使用 admin layout 與認證
 definePageMeta({
@@ -229,8 +229,123 @@ definePageMeta({
   middleware: 'auth'
 })
 
-// 取得假資料
-const { customers, bookings, toggleCustomerBlacklist, updateCustomerNote } = useAdminMockData()
+// API
+const adminApi = useAdminApi()
+
+// 本地狀態
+const loading = ref(false)
+
+// 本地顧客介面（保持 template 相容）
+interface LocalCustomer {
+  id: string
+  name: string
+  phone: string
+  email: string
+  totalBookings: number
+  completedBookings: number
+  noShowCount: number
+  isBlacklisted: boolean
+  note: string
+  lastVisit: string
+  createdAt: string
+}
+
+const customers = ref<LocalCustomer[]>([])
+
+// 本地預約介面
+interface LocalBooking {
+  id: string
+  customerId: string
+  date: string
+  serviceName: string
+  status: BookingStatus
+}
+
+const bookings = ref<LocalBooking[]>([])
+
+// 載入顧客資料
+const loadCustomers = async () => {
+  loading.value = true
+  try {
+    const res = await adminApi.getCustomers()
+    if (res.success && res.data) {
+      customers.value = res.data.map((c: AdminCustomer) => ({
+        id: c.id,
+        name: c.name,
+        phone: c.phone || '',
+        email: c.email,
+        totalBookings: c.stats?.total_bookings || 0,
+        completedBookings: c.stats?.completed_bookings || 0,
+        noShowCount: c.stats?.no_show_count || 0,
+        isBlacklisted: c.salon_relation?.is_blacklisted || false,
+        note: c.salon_relation?.note || '',
+        lastVisit: c.salon_relation?.last_visit_at || '',
+        createdAt: c.created_at
+      }))
+    }
+  } catch (error) {
+    console.error('Failed to load customers:', error)
+  } finally {
+    loading.value = false
+  }
+}
+
+// 載入預約紀錄（用於顧客詳情）
+const loadCustomerBookings = async (customerId: string) => {
+  try {
+    // 從 API 取得該顧客的預約（簡化處理，實際可加 customer_id 參數）
+    const res = await adminApi.getBookings()
+    if (res.success && res.data) {
+      bookings.value = res.data
+        .filter((b: AdminBooking) => b.customer?.id === customerId)
+        .map((b: AdminBooking) => ({
+          id: b.id,
+          customerId: b.customer?.id || '',
+          date: b.booking_date,
+          serviceName: b.service?.name || '服務',
+          status: b.status
+        }))
+    }
+  } catch (error) {
+    console.error('Failed to load bookings:', error)
+  }
+}
+
+// 初始載入
+onMounted(() => {
+  loadCustomers()
+})
+
+// 更新顧客備註
+const updateCustomerNoteAction = async (customerId: string, note: string) => {
+  try {
+    const res = await adminApi.updateCustomerNote(customerId, note)
+    if (res.success) {
+      // 更新本地資料
+      const customer = customers.value.find(c => c.id === customerId)
+      if (customer) {
+        customer.note = note
+      }
+    }
+  } catch (error) {
+    console.error('Failed to update customer note:', error)
+  }
+}
+
+// 切換黑名單狀態
+const toggleCustomerBlacklistAction = async (customerId: string, isBlacklisted: boolean) => {
+  try {
+    if (isBlacklisted) {
+      await adminApi.removeFromBlacklist(customerId)
+    } else {
+      await adminApi.addToBlacklist(customerId, '店家加入')
+    }
+    // 重新載入顧客資料
+    await loadCustomers()
+  } catch (error) {
+    console.error('Failed to toggle blacklist:', error)
+  }
+}
 
 // 搜尋關鍵字
 const searchKeyword = ref('')
@@ -240,7 +355,7 @@ const showBlacklistOnly = ref(false)
 
 // 詳情 Modal 狀態
 const showDetailModal = ref(false)
-const selectedCustomer = ref<Customer | null>(null)
+const selectedCustomer = ref<LocalCustomer | null>(null)
 const editingNote = ref('')
 
 // 狀態標籤對應
@@ -265,7 +380,7 @@ const statusVariants: Record<BookingStatus, 'default' | 'primary' | 'success' | 
 
 // 篩選後的顧客列表
 const filteredCustomers = computed(() => {
-  return customers.filter(customer => {
+  return customers.value.filter(customer => {
     // 黑名單篩選
     if (showBlacklistOnly.value && !customer.isBlacklisted) {
       return false
@@ -286,7 +401,7 @@ const filteredCustomers = computed(() => {
 // 選中顧客的預約紀錄
 const customerBookings = computed(() => {
   if (!selectedCustomer.value) return []
-  return bookings
+  return bookings.value
     .filter(b => b.customerId === selectedCustomer.value!.id)
     .sort((a, b) => b.date.localeCompare(a.date))
     .slice(0, 5)
@@ -310,22 +425,24 @@ const formatDate = (dateStr: string): string => {
 }
 
 // 查看顧客詳情
-const viewCustomerDetail = (customer: Customer) => {
+const viewCustomerDetail = async (customer: LocalCustomer) => {
   selectedCustomer.value = customer
   editingNote.value = customer.note
   showDetailModal.value = true
+  // 載入該顧客的預約紀錄
+  await loadCustomerBookings(customer.id)
 }
 
 // 儲存備註
-const saveNote = () => {
+const saveNote = async () => {
   if (selectedCustomer.value) {
-    updateCustomerNote(selectedCustomer.value.id, editingNote.value)
+    await updateCustomerNoteAction(selectedCustomer.value.id, editingNote.value)
     alert('備註已儲存')
   }
 }
 
 // 切換黑名單狀態
-const handleToggleBlacklist = () => {
+const handleToggleBlacklist = async () => {
   if (!selectedCustomer.value) return
 
   const action = selectedCustomer.value.isBlacklisted ? '解除' : '加入'
@@ -334,7 +451,9 @@ const handleToggleBlacklist = () => {
     : `確定要將「${selectedCustomer.value.name}」加入黑名單嗎？\n\n加入後該顧客將無法使用線上預約。`
 
   if (confirm(message)) {
-    toggleCustomerBlacklist(selectedCustomer.value.id)
+    await toggleCustomerBlacklistAction(selectedCustomer.value.id, selectedCustomer.value.isBlacklisted)
+    // 更新 selectedCustomer 的狀態
+    selectedCustomer.value.isBlacklisted = !selectedCustomer.value.isBlacklisted
     alert(`已${action}黑名單`)
   }
 }

@@ -136,9 +136,9 @@
  * 廠商後台 - 設計師管理頁面
  * 提供設計師的新增、編輯與狀態管理
  */
-import { ref, reactive } from 'vue'
-import { useAdminMockData } from '~/composables/useAdminMockData'
-import type { Stylist } from '~/composables/useAdminMockData'
+import { ref, reactive, onMounted } from 'vue'
+import { useAdminApi } from '~/composables/useAdminApi'
+import type { AdminStylist } from '~/composables/useAdminApi'
 
 // 設定使用 admin layout 與認證
 definePageMeta({
@@ -146,8 +146,80 @@ definePageMeta({
   middleware: 'auth'
 })
 
-// 取得假資料
-const { stylists, addStylist, updateStylist } = useAdminMockData()
+const adminApi = useAdminApi()
+const loading = ref(false)
+
+// 設計師列表（轉換格式以兼容模板）
+interface Stylist {
+  id: string
+  name: string
+  style: string
+  introduction: string
+  isActive: boolean
+}
+
+const stylists = ref<Stylist[]>([])
+
+// 載入設計師列表
+const loadStylists = async () => {
+  loading.value = true
+  try {
+    const res = await adminApi.getStylists()
+    if (res.success && res.data) {
+      stylists.value = res.data.map((s: AdminStylist) => ({
+        id: s.id,
+        name: s.name,
+        style: s.style || '',
+        introduction: s.introduction || '',
+        isActive: s.is_active
+      }))
+    }
+  } catch (error) {
+    console.error('Failed to load stylists:', error)
+  } finally {
+    loading.value = false
+  }
+}
+
+// 新增設計師
+const addStylist = async (data: Partial<Stylist>) => {
+  try {
+    const res = await adminApi.createStylist({
+      name: data.name || '',
+      style: data.style,
+      introduction: data.introduction,
+      sort_order: stylists.value.length + 1,
+      is_active: data.isActive !== false
+    })
+    if (res.success) {
+      await loadStylists()
+    }
+  } catch (error) {
+    console.error('Failed to add stylist:', error)
+  }
+}
+
+// 更新設計師
+const updateStylist = async (id: string, data: Partial<Stylist>) => {
+  try {
+    const res = await adminApi.updateStylist(id, {
+      name: data.name,
+      style: data.style,
+      introduction: data.introduction,
+      is_active: data.isActive
+    })
+    if (res.success) {
+      await loadStylists()
+    }
+  } catch (error) {
+    console.error('Failed to update stylist:', error)
+  }
+}
+
+// 初始載入
+onMounted(() => {
+  loadStylists()
+})
 
 // Modal 狀態
 const showModal = ref(false)

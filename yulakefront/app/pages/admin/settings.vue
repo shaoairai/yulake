@@ -102,19 +102,19 @@
         <div class="rules-list">
           <div class="rule-item">
             <span class="rule-label">預約間隔</span>
-            <span class="rule-value">30 分鐘</span>
+            <span class="rule-value">{{ bookingRule.slotInterval }} 分鐘</span>
           </div>
           <div class="rule-item">
             <span class="rule-label">最晚預約時間</span>
-            <span class="rule-value">至少提前 3 小時</span>
+            <span class="rule-value">至少提前 {{ bookingRule.minAdvanceHours }} 小時</span>
           </div>
           <div class="rule-item">
             <span class="rule-label">可預約天數</span>
-            <span class="rule-value">未來 30 天</span>
+            <span class="rule-value">未來 {{ bookingRule.maxAdvanceDays }} 天</span>
           </div>
           <div class="rule-item">
             <span class="rule-label">預約確認方式</span>
-            <span class="rule-value">自動確認</span>
+            <span class="rule-value">{{ bookingRule.requireConfirmation ? '需店家確認' : '自動確認' }}</span>
           </div>
         </div>
         <p class="rules-hint">
@@ -130,8 +130,9 @@
  * 廠商後台 - 店家設定頁面
  * 提供店家基本資料與預約連結管理
  */
-import { reactive } from 'vue'
-import { useAdminMockData } from '~/composables/useAdminMockData'
+import { ref, reactive, onMounted } from 'vue'
+import { useAdminApi } from '~/composables/useAdminApi'
+import type { SalonSettings } from '~/composables/useAdminApi'
 
 // 設定使用 admin layout 與認證
 definePageMeta({
@@ -139,30 +140,123 @@ definePageMeta({
   middleware: 'auth'
 })
 
-// 取得假資料
-const { salon, updateSalon } = useAdminMockData()
+// API
+const adminApi = useAdminApi()
+
+// 本地狀態
+const loading = ref(false)
+
+// 店家資料（保持 template 相容）
+const salon = reactive({
+  name: '',
+  address: '',
+  phone: '',
+  lineId: '',
+  igAccount: '',
+  website: '',
+  bookingUrl: '',
+  businessHours: [] as { day: string; isOpen: boolean; openTime: string; closeTime: string }[]
+})
+
+// 預約規則
+const bookingRule = reactive({
+  slotInterval: 30,
+  minAdvanceHours: 3,
+  maxAdvanceDays: 30,
+  requireConfirmation: false
+})
 
 // 表單資料
 const formData = reactive({
-  name: salon.name,
-  address: salon.address,
-  phone: salon.phone,
-  lineId: salon.lineId,
-  igAccount: salon.igAccount,
-  website: salon.website
+  name: '',
+  address: '',
+  phone: '',
+  lineId: '',
+  igAccount: '',
+  website: ''
+})
+
+// 星期對應
+const dayNames = ['週日', '週一', '週二', '週三', '週四', '週五', '週六']
+
+// 載入設定
+const loadSettings = async () => {
+  loading.value = true
+  try {
+    const res = await adminApi.getSettings()
+    if (res.success && res.data) {
+      const data = res.data as SalonSettings
+
+      // 更新店家資料
+      salon.name = data.salon.name
+      salon.address = data.salon.address
+      salon.phone = data.salon.phone
+      salon.lineId = data.salon.line_id || ''
+      salon.igAccount = data.salon.ig_account || ''
+      salon.website = data.salon.website || ''
+      salon.bookingUrl = data.salon.booking_url
+
+      // 轉換營業時間格式
+      salon.businessHours = data.business_hours.map(h => ({
+        day: dayNames[h.day_of_week],
+        isOpen: h.is_open,
+        openTime: h.open_time || '',
+        closeTime: h.close_time || ''
+      }))
+
+      // 更新預約規則
+      if (data.booking_rule) {
+        bookingRule.slotInterval = data.booking_rule.slot_interval
+        bookingRule.minAdvanceHours = data.booking_rule.min_advance_hours
+        bookingRule.maxAdvanceDays = data.booking_rule.max_advance_days
+        bookingRule.requireConfirmation = data.booking_rule.require_confirmation
+      }
+
+      // 同步表單資料
+      formData.name = salon.name
+      formData.address = salon.address
+      formData.phone = salon.phone
+      formData.lineId = salon.lineId
+      formData.igAccount = salon.igAccount
+      formData.website = salon.website
+    }
+  } catch (error) {
+    console.error('Failed to load settings:', error)
+  } finally {
+    loading.value = false
+  }
+}
+
+// 初始載入
+onMounted(() => {
+  loadSettings()
 })
 
 // 儲存基本資料
-const saveBasicInfo = () => {
-  updateSalon({
-    name: formData.name,
-    address: formData.address,
-    phone: formData.phone,
-    lineId: formData.lineId,
-    igAccount: formData.igAccount,
-    website: formData.website
-  })
-  alert('店家資料已儲存')
+const saveBasicInfo = async () => {
+  try {
+    const res = await adminApi.updateSettings({
+      name: formData.name,
+      address: formData.address,
+      phone: formData.phone,
+      line_id: formData.lineId,
+      ig_account: formData.igAccount,
+      website: formData.website
+    })
+    if (res.success) {
+      // 同步本地資料
+      salon.name = formData.name
+      salon.address = formData.address
+      salon.phone = formData.phone
+      salon.lineId = formData.lineId
+      salon.igAccount = formData.igAccount
+      salon.website = formData.website
+      alert('店家資料已儲存')
+    }
+  } catch (error) {
+    console.error('Failed to save settings:', error)
+    alert('儲存失敗，請稍後再試')
+  }
 }
 
 // 複製預約連結

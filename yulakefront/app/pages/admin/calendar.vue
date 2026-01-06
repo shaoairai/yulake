@@ -141,10 +141,10 @@
  * 廠商後台 - 日曆視圖頁面
  * 以日曆形式顯示所有預約
  */
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { useAdminMockData } from '~/composables/useAdminMockData'
-import type { Booking, BookingStatus } from '~/composables/useAdminMockData'
+import { useAdminApi } from '~/composables/useAdminApi'
+import type { BookingStatus, AdminBooking, AdminStylist } from '~/composables/useAdminApi'
 
 // 設定使用 admin layout 與認證
 definePageMeta({
@@ -155,19 +155,118 @@ definePageMeta({
 // 路由
 const router = useRouter()
 
-// 取得假資料
-const { bookings, stylists, updateBookingStatus } = useAdminMockData()
+// API
+const adminApi = useAdminApi()
+
+// 本地狀態
+const loading = ref(false)
+
+// 本地預約介面（保持 template 相容）
+interface LocalBooking {
+  id: string
+  date: string
+  startTime: string
+  endTime: string
+  customerName: string
+  customerPhone: string
+  serviceName: string
+  stylistId: string
+  stylistName: string
+  status: BookingStatus
+  note?: string
+}
+
+const bookings = ref<LocalBooking[]>([])
+
+// 本地設計師介面
+interface LocalStylist {
+  id: string
+  name: string
+  isActive: boolean
+}
+
+const stylists = ref<LocalStylist[]>([])
+
+// 載入預約資料（日曆使用 getCalendarData）
+const loadCalendarData = async () => {
+  loading.value = true
+  try {
+    // 預設取得今天起 30 天的預約
+    const today = new Date()
+    const endDate = new Date()
+    endDate.setDate(endDate.getDate() + 30)
+
+    const startStr = today.toISOString().split('T')[0]
+    const endStr = endDate.toISOString().split('T')[0]
+
+    const res = await adminApi.getCalendarData(startStr, endStr)
+    if (res.success && res.data) {
+      bookings.value = res.data.map((b: AdminBooking) => ({
+        id: b.id,
+        date: b.booking_date,
+        startTime: b.start_time,
+        endTime: b.end_time,
+        customerName: b.customer?.name || '顧客',
+        customerPhone: b.customer?.phone || '',
+        serviceName: b.service?.name || '服務',
+        stylistId: b.stylist?.id || '',
+        stylistName: b.stylist?.name || '設計師',
+        status: b.status,
+        note: b.customer_note
+      }))
+    }
+  } catch (error) {
+    console.error('Failed to load calendar data:', error)
+  } finally {
+    loading.value = false
+  }
+}
+
+// 載入設計師
+const loadStylists = async () => {
+  try {
+    const res = await adminApi.getStylists()
+    if (res.success && res.data) {
+      stylists.value = res.data.map((s: AdminStylist) => ({
+        id: s.id,
+        name: s.name,
+        isActive: s.is_active
+      }))
+    }
+  } catch (error) {
+    console.error('Failed to load stylists:', error)
+  }
+}
+
+// 初始載入
+onMounted(() => {
+  loadCalendarData()
+  loadStylists()
+})
+
+// 更新預約狀態
+const updateBookingStatusAction = async (bookingId: string, status: BookingStatus) => {
+  try {
+    const res = await adminApi.updateBookingStatus(bookingId, status)
+    if (res.success) {
+      // 重新載入日曆資料
+      await loadCalendarData()
+    }
+  } catch (error) {
+    console.error('Failed to update booking status:', error)
+  }
+}
 
 // 篩選狀態
 const selectedStylist = ref('')
 const selectedStatus = ref('')
 const showBookingModal = ref(false)
-const selectedBooking = ref<Booking | null>(null)
+const selectedBooking = ref<LocalBooking | null>(null)
 
 // 設計師選項
 const stylistOptions = computed(() => [
   { value: '', label: '全部設計師' },
-  ...stylists
+  ...stylists.value
     .filter(s => s.isActive)
     .map(s => ({ value: s.id, label: s.name }))
 ])
@@ -205,7 +304,7 @@ const statusVariants: Record<BookingStatus, 'default' | 'primary' | 'success' | 
 
 // 篩選後的預約
 const filteredBookings = computed(() => {
-  return bookings.filter(booking => {
+  return bookings.value.filter(booking => {
     if (selectedStylist.value && booking.stylistId !== selectedStylist.value) {
       return false
     }
@@ -243,7 +342,7 @@ const canChangeStatus = (status: BookingStatus): boolean => {
 }
 
 // 事件處理
-const handleEventClick = (event: Booking) => {
+const handleEventClick = (event: LocalBooking) => {
   selectedBooking.value = event
   showBookingModal.value = true
 }
@@ -266,30 +365,30 @@ const handleAddBooking = () => {
 }
 
 // 狀態變更操作
-const confirmBooking = () => {
+const confirmBooking = async () => {
   if (selectedBooking.value) {
-    updateBookingStatus(selectedBooking.value.id, 'confirmed')
+    await updateBookingStatusAction(selectedBooking.value.id, 'confirmed')
     showBookingModal.value = false
   }
 }
 
-const completeBooking = () => {
+const completeBooking = async () => {
   if (selectedBooking.value) {
-    updateBookingStatus(selectedBooking.value.id, 'completed')
+    await updateBookingStatusAction(selectedBooking.value.id, 'completed')
     showBookingModal.value = false
   }
 }
 
-const markNoShow = () => {
+const markNoShow = async () => {
   if (selectedBooking.value && confirm('確定要將此預約標記為未出席嗎？此操作會影響顧客的爽約紀錄。')) {
-    updateBookingStatus(selectedBooking.value.id, 'no_show')
+    await updateBookingStatusAction(selectedBooking.value.id, 'no_show')
     showBookingModal.value = false
   }
 }
 
-const cancelBooking = () => {
+const cancelBooking = async () => {
   if (selectedBooking.value && confirm('確定要取消此預約嗎？')) {
-    updateBookingStatus(selectedBooking.value.id, 'cancelled_by_salon')
+    await updateBookingStatusAction(selectedBooking.value.id, 'cancelled_by_salon')
     showBookingModal.value = false
   }
 }

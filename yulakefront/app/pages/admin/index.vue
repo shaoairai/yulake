@@ -123,9 +123,10 @@
  * 廠商後台 - 今日總覽頁面
  * 顯示統計數據、今日預約與快速操作
  */
+import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { useAdminMockData } from '~/composables/useAdminMockData'
-import type { BookingStatus } from '~/composables/useAdminMockData'
+import { useAdminApi } from '~/composables/useAdminApi'
+import type { BookingStatus } from '~/composables/useAdminApi'
 
 // 設定使用 admin layout 與認證
 definePageMeta({
@@ -135,9 +136,83 @@ definePageMeta({
 
 // 路由
 const router = useRouter()
+const adminApi = useAdminApi()
 
-// 取得假資料
-const { stats, todayBookings, reminders } = useAdminMockData()
+// 資料狀態
+const loading = ref(false)
+const stats = ref({
+  weeklyBookings: 0,
+  weeklyBookingsChange: '+0%',
+  noShowCount: 0,
+  noShowCountChange: '+0',
+  newCustomers: 0,
+  newCustomersChange: '+0%'
+})
+
+interface TodayBooking {
+  id: string
+  startTime: string
+  customerName: string
+  serviceName: string
+  stylistName: string
+  status: BookingStatus
+}
+
+const todayBookings = ref<TodayBooking[]>([])
+
+interface Reminder {
+  id: string
+  customerName: string
+  type: 'birthday' | 'revisit'
+  date: string
+}
+
+const reminders = ref<Reminder[]>([])
+
+// 載入 Dashboard 資料
+const loadDashboard = async () => {
+  loading.value = true
+  try {
+    const res = await adminApi.getDashboard()
+    if (res.success && res.data) {
+      const data = res.data
+
+      // 更新統計
+      stats.value = {
+        weeklyBookings: data.week_bookings || 0,
+        weeklyBookingsChange: '+0%',
+        noShowCount: 0,
+        noShowCountChange: '+0',
+        newCustomers: 0,
+        newCustomersChange: '+0%'
+      }
+
+      // 轉換今日預約格式
+      if (data.recent_bookings && Array.isArray(data.recent_bookings)) {
+        todayBookings.value = data.recent_bookings.map((b: any) => ({
+          id: b.id,
+          startTime: b.start_time,
+          customerName: b.customer?.name || b.customer_name || '顧客',
+          serviceName: b.service?.name || b.service_name || '服務',
+          stylistName: b.stylist?.name || b.stylist_name || '設計師',
+          status: b.status
+        }))
+      }
+
+      // 提醒暫時為空（API 暫未提供）
+      reminders.value = []
+    }
+  } catch (error) {
+    console.error('Failed to load dashboard:', error)
+  } finally {
+    loading.value = false
+  }
+}
+
+// 初始載入
+onMounted(() => {
+  loadDashboard()
+})
 
 // 狀態標籤對應
 const statusLabels: Record<BookingStatus, string> = {

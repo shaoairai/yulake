@@ -52,6 +52,8 @@ const navItems = [
   { path: '/admin/customers', label: '顧客與黑名單', icon: '👥' },
   { path: '/admin/services', label: '服務與價目', icon: '💅' },
   { path: '/admin/stylists', label: '設計師管理', icon: '✨' },
+  { path: '/admin/membership', label: '會員等級', icon: '⭐' },
+  { path: '/admin/marketing', label: 'Email 行銷', icon: '📧' },
   { path: '/admin/settings', label: '店家設定', icon: '⚙️' }
 ]
 

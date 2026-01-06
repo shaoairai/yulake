@@ -163,9 +163,9 @@
  * 廠商後台 - 服務與價目管理頁面
  * 提供服務項目的新增、編輯與狀態管理
  */
-import { ref, reactive } from 'vue'
-import { useAdminMockData } from '~/composables/useAdminMockData'
-import type { Service } from '~/composables/useAdminMockData'
+import { ref, reactive, onMounted } from 'vue'
+import { useAdminApi } from '~/composables/useAdminApi'
+import type { AdminService } from '~/composables/useAdminApi'
 
 // 設定使用 admin layout 與認證
 definePageMeta({
@@ -173,8 +173,86 @@ definePageMeta({
   middleware: 'auth'
 })
 
-// 取得假資料
-const { services, addService, updateService } = useAdminMockData()
+const adminApi = useAdminApi()
+const loading = ref(false)
+
+// 服務列表（轉換格式以兼容模板）
+interface Service {
+  id: string
+  name: string
+  description: string
+  duration: number
+  price: number
+  stylists: string
+  isActive: boolean
+}
+
+const services = ref<Service[]>([])
+
+// 載入服務列表
+const loadServices = async () => {
+  loading.value = true
+  try {
+    const res = await adminApi.getServices()
+    if (res.success && res.data) {
+      services.value = res.data.map((s: AdminService) => ({
+        id: s.id,
+        name: s.name,
+        description: s.description || '',
+        duration: s.duration,
+        price: s.price,
+        stylists: '全部設計師',
+        isActive: s.is_active
+      }))
+    }
+  } catch (error) {
+    console.error('Failed to load services:', error)
+  } finally {
+    loading.value = false
+  }
+}
+
+// 新增服務
+const addService = async (data: Partial<Service>) => {
+  try {
+    const res = await adminApi.createService({
+      name: data.name || '',
+      description: data.description,
+      duration: data.duration || 60,
+      price: data.price || 0,
+      sort_order: services.value.length + 1,
+      is_active: data.isActive !== false
+    })
+    if (res.success) {
+      await loadServices()
+    }
+  } catch (error) {
+    console.error('Failed to add service:', error)
+  }
+}
+
+// 更新服務
+const updateService = async (id: string, data: Partial<Service>) => {
+  try {
+    const res = await adminApi.updateService(id, {
+      name: data.name,
+      description: data.description,
+      duration: data.duration,
+      price: data.price,
+      is_active: data.isActive
+    })
+    if (res.success) {
+      await loadServices()
+    }
+  } catch (error) {
+    console.error('Failed to update service:', error)
+  }
+}
+
+// 初始載入
+onMounted(() => {
+  loadServices()
+})
 
 // Modal 狀態
 const showModal = ref(false)
