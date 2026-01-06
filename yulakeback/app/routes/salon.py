@@ -7,7 +7,8 @@ from datetime import datetime, date, timedelta
 from app import db
 from app.models import (
     Salon, Booking, Customer, SalonCustomer, CustomerStat,
-    Service, Stylist, ServiceStylist, BusinessHour, BookingRule
+    Service, Stylist, ServiceStylist, BusinessHour, BookingRule,
+    SpecialDate
 )
 from app.utils.response import ApiResponse
 from app.utils.errors import ApiError, ErrorCode
@@ -712,3 +713,299 @@ class Calendar(Resource):
             'end_time': b.end_time.strftime('%H:%M'),
             'status': b.status
         } for b in bookings])
+
+
+# ===== 店家設定 API =====
+
+@salon_ns.route('/settings')
+class SalonSettings(Resource):
+    @salon_ns.doc('get_settings', security='Bearer')
+    @salon_required
+    def get(self):
+        """取得店家設定"""
+        salon = Salon.query.get(g.salon_id)
+        if not salon:
+            raise ApiError(ErrorCode.SALON_NOT_FOUND)
+
+        # 取得營業時間
+        business_hours = BusinessHour.query.filter_by(
+            salon_id=g.salon_id
+        ).order_by(BusinessHour.day_of_week).all()
+
+        # 取得預約規則
+        booking_rule = BookingRule.query.filter_by(salon_id=g.salon_id).first()
+
+        return ApiResponse.success({
+            'salon': {
+                'id': salon.id,
+                'code': salon.code,
+                'name': salon.name,
+                'address': salon.address,
+                'phone': salon.phone,
+                'line_id': salon.line_id,
+                'ig_account': salon.ig_account,
+                'website': salon.website,
+                'logo_url': salon.logo_url,
+                'theme_color': salon.theme_color,
+                'booking_url': f'/s/{salon.code}'
+            },
+            'business_hours': [{
+                'day_of_week': bh.day_of_week,
+                'is_open': bh.is_open,
+                'open_time': bh.open_time.strftime('%H:%M') if bh.open_time else None,
+                'close_time': bh.close_time.strftime('%H:%M') if bh.close_time else None
+            } for bh in business_hours],
+            'booking_rule': {
+                'slot_interval': booking_rule.slot_interval if booking_rule else 30,
+                'min_advance_hours': booking_rule.min_advance_hours if booking_rule else 2,
+                'max_advance_days': booking_rule.max_advance_days if booking_rule else 30,
+                'require_confirmation': booking_rule.require_confirmation if booking_rule else True
+            }
+        })
+
+    @salon_ns.doc('update_settings', security='Bearer')
+    @salon_required
+    def put(self):
+        """更新店家基本資料"""
+        salon = Salon.query.get(g.salon_id)
+        if not salon:
+            raise ApiError(ErrorCode.SALON_NOT_FOUND)
+
+        data = request.get_json()
+
+        if 'name' in data:
+            salon.name = data['name']
+        if 'address' in data:
+            salon.address = data['address']
+        if 'phone' in data:
+            salon.phone = data['phone']
+        if 'line_id' in data:
+            salon.line_id = data['line_id']
+        if 'ig_account' in data:
+            salon.ig_account = data['ig_account']
+        if 'website' in data:
+            salon.website = data['website']
+        if 'theme_color' in data:
+            salon.theme_color = data['theme_color']
+
+        db.session.commit()
+
+        return ApiResponse.success({
+            'id': salon.id,
+            'name': salon.name
+        }, '店家資料更新成功')
+
+
+@salon_ns.route('/settings/hours')
+class BusinessHoursSettings(Resource):
+    @salon_ns.doc('update_business_hours', security='Bearer')
+    @salon_required
+    def put(self):
+        """更新營業時間"""
+        data = request.get_json()
+        hours_data = data.get('business_hours', [])
+
+        for hour_data in hours_data:
+            day_of_week = hour_data.get('day_of_week')
+            if day_of_week is None:
+                continue
+
+            business_hour = BusinessHour.query.filter_by(
+                salon_id=g.salon_id,
+                day_of_week=day_of_week
+            ).first()
+
+            if not business_hour:
+                business_hour = BusinessHour(
+                    salon_id=g.salon_id,
+                    day_of_week=day_of_week
+                )
+                db.session.add(business_hour)
+
+            business_hour.is_open = hour_data.get('is_open', False)
+
+            if hour_data.get('open_time'):
+                business_hour.open_time = datetime.strptime(
+                    hour_data['open_time'], '%H:%M'
+                ).time()
+            if hour_data.get('close_time'):
+                business_hour.close_time = datetime.strptime(
+                    hour_data['close_time'], '%H:%M'
+                ).time()
+
+        db.session.commit()
+
+        # 回傳更新後的營業時間
+        business_hours = BusinessHour.query.filter_by(
+            salon_id=g.salon_id
+        ).order_by(BusinessHour.day_of_week).all()
+
+        return ApiResponse.success([{
+            'day_of_week': bh.day_of_week,
+            'is_open': bh.is_open,
+            'open_time': bh.open_time.strftime('%H:%M') if bh.open_time else None,
+            'close_time': bh.close_time.strftime('%H:%M') if bh.close_time else None
+        } for bh in business_hours], '營業時間更新成功')
+
+
+@salon_ns.route('/settings/rules')
+class BookingRulesSettings(Resource):
+    @salon_ns.doc('update_booking_rules', security='Bearer')
+    @salon_required
+    def put(self):
+        """更新預約規則"""
+        data = request.get_json()
+
+        booking_rule = BookingRule.query.filter_by(salon_id=g.salon_id).first()
+
+        if not booking_rule:
+            booking_rule = BookingRule(salon_id=g.salon_id)
+            db.session.add(booking_rule)
+
+        if 'slot_interval' in data:
+            booking_rule.slot_interval = data['slot_interval']
+        if 'min_advance_hours' in data:
+            booking_rule.min_advance_hours = data['min_advance_hours']
+        if 'max_advance_days' in data:
+            booking_rule.max_advance_days = data['max_advance_days']
+        if 'require_confirmation' in data:
+            booking_rule.require_confirmation = data['require_confirmation']
+
+        db.session.commit()
+
+        return ApiResponse.success({
+            'slot_interval': booking_rule.slot_interval,
+            'min_advance_hours': booking_rule.min_advance_hours,
+            'max_advance_days': booking_rule.max_advance_days,
+            'require_confirmation': booking_rule.require_confirmation
+        }, '預約規則更新成功')
+
+
+# ===== 特殊日期管理 =====
+
+@salon_ns.route('/special-dates')
+class SpecialDateList(Resource):
+    @salon_ns.doc('get_special_dates', security='Bearer')
+    @salon_required
+    def get(self):
+        """取得特殊日期列表"""
+        start_date = request.args.get('start_date')
+        end_date = request.args.get('end_date')
+
+        query = SpecialDate.query.filter_by(salon_id=g.salon_id)
+
+        if start_date:
+            query = query.filter(SpecialDate.date >= start_date)
+        if end_date:
+            query = query.filter(SpecialDate.date <= end_date)
+
+        special_dates = query.order_by(SpecialDate.date).all()
+
+        return ApiResponse.success([{
+            'id': sd.id,
+            'date': sd.date.isoformat(),
+            'type': sd.type,
+            'open_time': sd.open_time.strftime('%H:%M') if sd.open_time else None,
+            'close_time': sd.close_time.strftime('%H:%M') if sd.close_time else None,
+            'reason': sd.reason
+        } for sd in special_dates])
+
+    @salon_ns.doc('create_special_date', security='Bearer')
+    @salon_required
+    def post(self):
+        """新增特殊日期"""
+        data = request.get_json()
+
+        if not data.get('date') or not data.get('type'):
+            raise ApiError(ErrorCode.VALIDATION_ERROR, '日期和類型為必填')
+
+        try:
+            special_date_value = datetime.strptime(data['date'], '%Y-%m-%d').date()
+        except ValueError:
+            raise ApiError(ErrorCode.VALIDATION_ERROR, '日期格式錯誤')
+
+        # 檢查是否已存在
+        existing = SpecialDate.query.filter_by(
+            salon_id=g.salon_id,
+            date=special_date_value
+        ).first()
+
+        if existing:
+            raise ApiError(ErrorCode.VALIDATION_ERROR, '該日期已設定特殊日期')
+
+        special_date = SpecialDate(
+            salon_id=g.salon_id,
+            date=special_date_value,
+            type=data['type'],
+            reason=data.get('reason')
+        )
+
+        if data['type'] == 'special_hours':
+            if data.get('open_time'):
+                special_date.open_time = datetime.strptime(data['open_time'], '%H:%M').time()
+            if data.get('close_time'):
+                special_date.close_time = datetime.strptime(data['close_time'], '%H:%M').time()
+
+        db.session.add(special_date)
+        db.session.commit()
+
+        return ApiResponse.created({
+            'id': special_date.id,
+            'date': special_date.date.isoformat(),
+            'type': special_date.type
+        })
+
+
+@salon_ns.route('/special-dates/<string:special_date_id>')
+class SpecialDateDetail(Resource):
+    @salon_ns.doc('update_special_date', security='Bearer')
+    @salon_required
+    def put(self, special_date_id):
+        """更新特殊日期"""
+        special_date = SpecialDate.query.filter_by(
+            id=special_date_id,
+            salon_id=g.salon_id
+        ).first()
+
+        if not special_date:
+            raise ApiError(ErrorCode.RESOURCE_NOT_FOUND)
+
+        data = request.get_json()
+
+        if 'type' in data:
+            special_date.type = data['type']
+        if 'reason' in data:
+            special_date.reason = data['reason']
+        if 'open_time' in data:
+            special_date.open_time = datetime.strptime(
+                data['open_time'], '%H:%M'
+            ).time() if data['open_time'] else None
+        if 'close_time' in data:
+            special_date.close_time = datetime.strptime(
+                data['close_time'], '%H:%M'
+            ).time() if data['close_time'] else None
+
+        db.session.commit()
+
+        return ApiResponse.success({
+            'id': special_date.id,
+            'date': special_date.date.isoformat(),
+            'type': special_date.type
+        }, '更新成功')
+
+    @salon_ns.doc('delete_special_date', security='Bearer')
+    @salon_required
+    def delete(self, special_date_id):
+        """刪除特殊日期"""
+        special_date = SpecialDate.query.filter_by(
+            id=special_date_id,
+            salon_id=g.salon_id
+        ).first()
+
+        if not special_date:
+            raise ApiError(ErrorCode.RESOURCE_NOT_FOUND)
+
+        db.session.delete(special_date)
+        db.session.commit()
+
+        return ApiResponse.success(message='刪除成功')

@@ -53,11 +53,19 @@ def create_app():
     from app.routes.auth import auth_ns
     from app.routes.public import public_ns
     from app.routes.salon import salon_ns
+    from app.routes.booking import booking_ns
+    from app.routes.customer import customer_ns
+    from app.routes.membership import membership_ns
+    from app.routes.email import email_ns
 
     api.add_namespace(health_ns, path='/api')
     api.add_namespace(auth_ns, path='/api/auth')
     api.add_namespace(public_ns, path='/api/salons')
     api.add_namespace(salon_ns, path='/api/salon')
+    api.add_namespace(booking_ns, path='/api/bookings')
+    api.add_namespace(customer_ns, path='/api/me')
+    api.add_namespace(membership_ns, path='/api/salon/membership')
+    api.add_namespace(email_ns, path='/api/salon/email')
 
     # 全域錯誤處理
     @app.errorhandler(Exception)

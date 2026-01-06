@@ -35,10 +35,13 @@ from app.models.booking import (
     CustomerStat
 )
 
-# 會員等級
+# 會員等級與集點
 from app.models.membership import (
     MembershipTier,
-    CustomerMembership
+    CustomerMembership,
+    PointRule,
+    CustomerPoints,
+    PointTransaction
 )
 
 # Email 行銷
@@ -70,9 +73,12 @@ __all__ = [
     # 預約與統計
     'Booking',
     'CustomerStat',
-    # 會員等級
+    # 會員等級與集點
     'MembershipTier',
     'CustomerMembership',
+    'PointRule',
+    'CustomerPoints',
+    'PointTransaction',
     # Email 行銷
     'EmailTemplate',
     'EmailCampaign',

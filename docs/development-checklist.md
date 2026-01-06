@@ -433,331 +433,128 @@
 ### 3.1 認證相關 API
 
 #### 3.1.1 顧客認證
-- [ ] `POST /api/auth/customer/register` - 顧客註冊
-  - 請求：name, email, password, phone（選填）
-  - 驗證：Email 格式、Email 不可重複、密碼強度
-  - 回應：token, user 資訊
-- [ ] `POST /api/auth/customer/login` - 顧客登入
-  - 請求：email, password
-  - 驗證：帳號密碼正確性
-  - 回應：token, user 資訊
-- [ ] `GET /api/auth/customer/me` - 取得當前顧客資訊
-  - 需要：Bearer Token
-  - 回應：顧客資訊
+- [x] `POST /api/auth/customer/register` - 顧客註冊
+- [x] `POST /api/auth/customer/login` - 顧客登入
+- [x] `GET /api/auth/customer/me` - 取得當前顧客資訊
 
 #### 3.1.2 店家認證
-- [ ] `POST /api/auth/salon/login` - 店家登入
-  - 請求：email, password
-  - 驗證：帳號密碼正確性
-  - 回應：token, owner 資訊, salon 資訊
-- [ ] `GET /api/auth/salon/me` - 取得當前店家資訊
-  - 需要：Bearer Token
-  - 回應：owner 資訊, salon 資訊
+- [x] `POST /api/auth/salon/login` - 店家登入
+- [x] `GET /api/auth/salon/me` - 取得當前店家資訊
 
 ### 3.2 公開 API（顧客預約前台）
 
 #### 3.2.1 店家資訊
-- [ ] `GET /api/salons/:code` - 根據 code 取得店家資訊
-  - 回應：店家名稱、Logo、主題色、營業時間等
-  - 注意：過濾掉敏感資訊
+- [x] `GET /api/salons/:code` - 根據 code 取得店家資訊
 
 #### 3.2.2 服務列表
-- [ ] `GET /api/salons/:code/services` - 取得店家服務列表
-  - 回應：已啟用的服務列表（名稱、說明、時長、價格）
-  - 排序：依 sort_order
+- [x] `GET /api/salons/:code/services` - 取得店家服務列表
 
 #### 3.2.3 設計師列表
-- [ ] `GET /api/salons/:code/stylists` - 取得店家設計師列表
-  - 可選參數：service_id（篩選可服務該項目的設計師）
-  - 回應：已啟用的設計師列表（姓名、風格、簡介）
-  - 排序：依 sort_order
+- [x] `GET /api/salons/:code/stylists` - 取得店家設計師列表
 
 #### 3.2.4 可用時段
-- [ ] `GET /api/salons/:code/available-slots` - 取得可預約時段
-  - 必要參數：stylist_id, date, service_id
-  - 邏輯：
-    1. 取得該日設計師排班
-    2. 取得該日既有預約
-    3. 計算服務所需時間
-    4. 套用預約規則（最晚預約時間）
-    5. 產生可用時段列表
-  - 回應：可用時段陣列（start_time, end_time）
+- [x] `GET /api/salons/:code/available-slots` - 取得可預約時段
 
 #### 3.2.5 建立預約
-- [ ] `POST /api/bookings` - 建立預約
-  - 需要：Bearer Token（顧客）
-  - 請求：salon_code, service_id, stylist_id, booking_date, start_time, customer_note
-  - 驗證：
-    1. 時段是否仍可用（防止併發衝突）
-    2. 顧客是否在該店黑名單
-    3. 是否符合預約規則
-  - 邏輯：
-    1. 計算 end_time
-    2. 建立預約記錄
-    3. 更新顧客統計
-    4. 更新 salon_customers（如首次預約）
-  - 回應：預約詳情
+- [x] `POST /api/bookings` - 建立預約
 
 ### 3.3 顧客 API
 
 #### 3.3.1 我的預約
-- [ ] `GET /api/me/bookings` - 取得我的預約列表
-  - 需要：Bearer Token（顧客）
-  - 可選參數：status, page, limit
-  - 回應：預約列表（含店家、服務、設計師資訊）
-
-- [ ] `GET /api/me/bookings/:id` - 取得預約詳情
-  - 需要：Bearer Token（顧客）
-  - 驗證：預約屬於該顧客
-  - 回應：預約詳情
-
-- [ ] `PUT /api/me/bookings/:id/cancel` - 取消預約
-  - 需要：Bearer Token（顧客）
-  - 驗證：預約屬於該顧客、狀態可取消
-  - 回應：更新後的預約
+- [x] `GET /api/me/bookings` - 取得我的預約列表
+- [x] `GET /api/me/bookings/:id` - 取得預約詳情
+- [x] `PUT /api/me/bookings/:id/cancel` - 取消預約
+- [x] `GET /api/me/profile` - 取得個人資料
+- [x] `PUT /api/me/profile` - 更新個人資料
 
 ### 3.4 店家後台 API
 
 #### 3.4.1 總覽/統計
-- [ ] `GET /api/salon/dashboard` - 取得總覽數據
-  - 需要：Bearer Token（店家）
-  - 回應：
-    - 本週預約總數與變化百分比
-    - 爽約次數與變化百分比
-    - 新顧客數與變化百分比
-    - 今日預約列表
-    - 回訪/生日提醒列表
+- [x] `GET /api/salon/dashboard` - 取得總覽數據
 
 #### 3.4.2 預約管理
-- [ ] `GET /api/salon/bookings` - 取得預約列表
-  - 需要：Bearer Token（店家）
-  - 可選參數：date_from, date_to, stylist_id, status, page, limit
-  - 回應：預約列表（含顧客、服務、設計師資訊）
-
-- [ ] `GET /api/salon/bookings/:id` - 取得預約詳情
-  - 需要：Bearer Token（店家）
-  - 回應：完整預約詳情
-
-- [ ] `PUT /api/salon/bookings/:id/status` - 更新預約狀態
-  - 需要：Bearer Token（店家）
-  - 請求：status, note（選填）
-  - 驗證：狀態轉換合法性
-  - 邏輯：
-    - 若標記 no_show，更新顧客爽約統計
-    - 若標記 completed，更新顧客完成統計
-  - 回應：更新後的預約
+- [x] `GET /api/salon/bookings` - 取得預約列表
+- [x] `GET /api/salon/bookings/:id` - 取得預約詳情
+- [x] `PUT /api/salon/bookings/:id/status` - 更新預約狀態
+- [x] `GET /api/salon/calendar` - 取得日曆資料
 
 #### 3.4.3 顧客管理
-- [ ] `GET /api/salon/customers` - 取得顧客列表
-  - 需要：Bearer Token（店家）
-  - 可選參數：search, is_blacklisted, page, limit
-  - 回應：顧客列表（含統計數據）
-
-- [ ] `GET /api/salon/customers/:id` - 取得顧客詳情
-  - 需要：Bearer Token（店家）
-  - 回應：顧客資訊、統計、預約歷史、備註
-
-- [ ] `PUT /api/salon/customers/:id/note` - 更新顧客備註
-  - 需要：Bearer Token（店家）
-  - 請求：note
-  - 回應：更新後的顧客資訊
-
-- [ ] `POST /api/salon/customers/:id/blacklist` - 加入黑名單
-  - 需要：Bearer Token（店家）
-  - 請求：reason（選填）
-  - 回應：更新後的顧客資訊
-
-- [ ] `DELETE /api/salon/customers/:id/blacklist` - 解除黑名單
-  - 需要：Bearer Token（店家）
-  - 回應：更新後的顧客資訊
+- [x] `GET /api/salon/customers` - 取得顧客列表
+- [x] `GET /api/salon/customers/:id` - 取得顧客詳情
+- [x] `PUT /api/salon/customers/:id/note` - 更新顧客備註
+- [x] `POST /api/salon/customers/:id/blacklist` - 加入黑名單
+- [x] `DELETE /api/salon/customers/:id/blacklist` - 解除黑名單
 
 #### 3.4.4 服務管理
-- [ ] `GET /api/salon/services` - 取得服務列表
-  - 需要：Bearer Token（店家）
-  - 回應：所有服務列表（含停用）
-
-- [ ] `POST /api/salon/services` - 新增服務
-  - 需要：Bearer Token（店家）
-  - 請求：name, description, duration, price, stylist_ids, is_active
-  - 驗證：必填欄位、數值合理性
-  - 回應：新增的服務
-
-- [ ] `PUT /api/salon/services/:id` - 更新服務
-  - 需要：Bearer Token（店家）
-  - 請求：name, description, duration, price, stylist_ids, is_active
-  - 回應：更新後的服務
-
-- [ ] `DELETE /api/salon/services/:id` - 刪除服務
-  - 需要：Bearer Token（店家）
-  - 驗證：無進行中的預約使用此服務
-  - 回應：成功/失敗
+- [x] `GET /api/salon/services` - 取得服務列表
+- [x] `POST /api/salon/services` - 新增服務
+- [x] `PUT /api/salon/services/:id` - 更新服務
+- [x] `DELETE /api/salon/services/:id` - 刪除服務
 
 #### 3.4.5 設計師管理
-- [ ] `GET /api/salon/stylists` - 取得設計師列表
-  - 需要：Bearer Token（店家）
-  - 回應：所有設計師列表（含停用）
-
-- [ ] `POST /api/salon/stylists` - 新增設計師
-  - 需要：Bearer Token（店家）
-  - 請求：name, style, introduction, is_active
-  - 回應：新增的設計師
-
-- [ ] `PUT /api/salon/stylists/:id` - 更新設計師
-  - 需要：Bearer Token（店家）
-  - 請求：name, style, introduction, is_active
-  - 回應：更新後的設計師
-
-- [ ] `DELETE /api/salon/stylists/:id` - 刪除設計師
-  - 需要：Bearer Token（店家）
-  - 驗證：無進行中的預約指派此設計師
-  - 回應：成功/失敗
+- [x] `GET /api/salon/stylists` - 取得設計師列表
+- [x] `POST /api/salon/stylists` - 新增設計師
+- [x] `PUT /api/salon/stylists/:id` - 更新設計師
+- [x] `DELETE /api/salon/stylists/:id` - 刪除設計師
 
 #### 3.4.6 店家設定
-- [ ] `GET /api/salon/settings` - 取得店家設定
-  - 需要：Bearer Token（店家）
-  - 回應：店家資料、營業時間、預約規則
-
-- [ ] `PUT /api/salon/settings` - 更新店家基本資料
-  - 需要：Bearer Token（店家）
-  - 請求：name, address, phone, line_id, ig_account, website
-  - 回應：更新後的店家資料
-
-- [ ] `PUT /api/salon/settings/hours` - 更新營業時間
-  - 需要：Bearer Token（店家）
-  - 請求：business_hours 陣列
-  - 回應：更新後的營業時間
-
-- [ ] `PUT /api/salon/settings/rules` - 更新預約規則
-  - 需要：Bearer Token（店家）
-  - 請求：slot_interval, min_advance_hours, max_advance_days, require_confirmation
-  - 回應：更新後的預約規則
+- [x] `GET /api/salon/settings` - 取得店家設定
+- [x] `PUT /api/salon/settings` - 更新店家基本資料
+- [x] `PUT /api/salon/settings/hours` - 更新營業時間
+- [x] `PUT /api/salon/settings/rules` - 更新預約規則
 
 #### 3.4.7 特殊日期管理
-- [ ] `GET /api/salon/special-dates` - 取得特殊日期列表
-  - 需要：Bearer Token（店家）
-  - 可選參數：start_date, end_date
-  - 回應：特殊日期列表
+- [x] `GET /api/salon/special-dates` - 取得特殊日期列表
+- [x] `POST /api/salon/special-dates` - 新增特殊日期
+- [x] `PUT /api/salon/special-dates/:id` - 更新特殊日期
+- [x] `DELETE /api/salon/special-dates/:id` - 刪除特殊日期
 
-- [ ] `POST /api/salon/special-dates` - 新增特殊日期
-  - 需要：Bearer Token（店家）
-  - 請求：date, type (closed/special_hours), open_time, close_time, reason
-  - 回應：新增的特殊日期
+#### 3.4.8 會員等級與集點管理
+- [x] `GET /api/salon/membership/tiers` - 取得會員等級列表（最多 10 等級）
+- [x] `POST /api/salon/membership/tiers` - 新增會員等級
+- [x] `GET /api/salon/membership/tiers/:id` - 取得會員等級詳情
+- [x] `PUT /api/salon/membership/tiers/:id` - 更新會員等級
+- [x] `DELETE /api/salon/membership/tiers/:id` - 刪除會員等級
+- [x] `GET /api/salon/membership/customers/:id/tier` - 取得顧客等級
+- [x] `PUT /api/salon/membership/customers/:id/tier` - 手動調整顧客等級
+- [x] `GET /api/salon/membership/point-rules` - 取得集點規則
+- [x] `PUT /api/salon/membership/point-rules` - 更新集點規則
+- [x] `GET /api/salon/membership/customers/:id/points` - 取得顧客點數
+- [x] `POST /api/salon/membership/customers/:id/points` - 手動調整顧客點數
+- [x] `GET /api/salon/membership/customers/:id/points/history` - 取得點數交易紀錄
+- [x] `GET /api/salon/membership/stats` - 取得會員等級統計
 
-- [ ] `PUT /api/salon/special-dates/:id` - 更新特殊日期
-  - 需要：Bearer Token（店家）
-  - 請求：type, open_time, close_time, reason
-  - 回應：更新後的特殊日期
-
-- [ ] `DELETE /api/salon/special-dates/:id` - 刪除特殊日期
-  - 需要：Bearer Token（店家）
-  - 回應：成功/失敗
-
-#### 3.4.8 會員等級管理
-- [ ] `GET /api/salon/membership-tiers` - 取得會員等級列表
-  - 需要：Bearer Token（店家）
-  - 回應：所有會員等級（含停用）
-
-- [ ] `POST /api/salon/membership-tiers` - 新增會員等級
-  - 需要：Bearer Token（店家）
-  - 請求：name, min_spent, min_visits, discount_percent, benefits, color
-  - 回應：新增的等級
-
-- [ ] `PUT /api/salon/membership-tiers/:id` - 更新會員等級
-  - 需要：Bearer Token（店家）
-  - 請求：name, min_spent, min_visits, discount_percent, benefits, color, is_active
-  - 回應：更新後的等級
-
-- [ ] `DELETE /api/salon/membership-tiers/:id` - 刪除會員等級
-  - 需要：Bearer Token（店家）
-  - 驗證：無顧客使用此等級
-  - 回應：成功/失敗
-
-- [ ] `PUT /api/salon/customers/:id/tier` - 手動調整顧客等級
-  - 需要：Bearer Token（店家）
-  - 請求：tier_id
-  - 回應：更新後的顧客資訊
-
-#### 3.4.9 Email 行銷管理
-- [ ] `GET /api/salon/email-templates` - 取得 Email 範本列表
-  - 需要：Bearer Token（店家）
-  - 回應：店家範本 + 系統預設範本
-
-- [ ] `POST /api/salon/email-templates` - 新增 Email 範本
-  - 需要：Bearer Token（店家）
-  - 請求：type, name, subject, body
-  - 回應：新增的範本
-
-- [ ] `PUT /api/salon/email-templates/:id` - 更新 Email 範本
-  - 需要：Bearer Token（店家）
-  - 請求：name, subject, body, is_active
-  - 回應：更新後的範本
-
-- [ ] `DELETE /api/salon/email-templates/:id` - 刪除 Email 範本
-  - 需要：Bearer Token（店家）
-  - 驗證：非系統範本
-  - 回應：成功/失敗
-
-- [ ] `POST /api/salon/email-templates/:id/preview` - 預覽 Email 範本
-  - 需要：Bearer Token（店家）
-  - 請求：test_data（用於變數替換）
-  - 回應：渲染後的 HTML
+#### 3.4.9 Email 範本管理
+- [x] `GET /api/salon/email/templates` - 取得 Email 範本列表
+- [x] `POST /api/salon/email/templates` - 新增 Email 範本
+- [x] `GET /api/salon/email/templates/:id` - 取得範本詳情
+- [x] `PUT /api/salon/email/templates/:id` - 更新 Email 範本
+- [x] `DELETE /api/salon/email/templates/:id` - 刪除 Email 範本
+- [x] `POST /api/salon/email/templates/:id/preview` - 預覽 Email 範本
 
 #### 3.4.10 Email 行銷活動
-- [ ] `GET /api/salon/email-campaigns` - 取得行銷活動列表
-  - 需要：Bearer Token（店家）
-  - 可選參數：status, page, limit
-  - 回應：活動列表（含統計數據）
-
-- [ ] `POST /api/salon/email-campaigns` - 建立行銷活動
-  - 需要：Bearer Token（店家）
-  - 請求：name, template_id, target_type, target_config, scheduled_at
-  - 回應：新增的活動
-
-- [ ] `GET /api/salon/email-campaigns/:id` - 取得活動詳情
-  - 需要：Bearer Token（店家）
-  - 回應：活動詳情 + 發送統計
-
-- [ ] `PUT /api/salon/email-campaigns/:id` - 更新行銷活動
-  - 需要：Bearer Token（店家）
-  - 驗證：僅 draft 狀態可編輯
-  - 請求：name, template_id, target_type, target_config, scheduled_at
-  - 回應：更新後的活動
-
-- [ ] `POST /api/salon/email-campaigns/:id/send` - 立即發送活動
-  - 需要：Bearer Token（店家）
-  - 驗證：狀態為 draft 或 scheduled
-  - 回應：更新後的活動（狀態變更為 sending）
-
-- [ ] `POST /api/salon/email-campaigns/:id/cancel` - 取消排程活動
-  - 需要：Bearer Token（店家）
-  - 驗證：狀態為 scheduled
-  - 回應：更新後的活動
-
-- [ ] `GET /api/salon/email-campaigns/:id/recipients` - 預覽收件人列表
-  - 需要：Bearer Token（店家）
-  - 回應：符合條件的顧客列表與數量
+- [x] `GET /api/salon/email/campaigns` - 取得行銷活動列表
+- [x] `POST /api/salon/email/campaigns` - 建立行銷活動
+- [x] `GET /api/salon/email/campaigns/:id` - 取得活動詳情
+- [x] `PUT /api/salon/email/campaigns/:id` - 更新行銷活動
+- [x] `DELETE /api/salon/email/campaigns/:id` - 刪除行銷活動
+- [x] `POST /api/salon/email/campaigns/:id/send` - 立即發送活動
+- [x] `POST /api/salon/email/campaigns/:id/cancel` - 取消排程活動
+- [x] `GET /api/salon/email/campaigns/:id/recipients` - 預覽收件人列表
 
 #### 3.4.11 自動發信規則
-- [ ] `GET /api/salon/auto-email-rules` - 取得自動發信規則
-  - 需要：Bearer Token（店家）
-  - 回應：所有自動發信規則
-
-- [ ] `PUT /api/salon/auto-email-rules/:type` - 更新自動發信規則
-  - 需要：Bearer Token（店家）
-  - 請求：template_id, config, is_active
-  - 回應：更新後的規則
+- [x] `GET /api/salon/email/auto-rules` - 取得自動發信規則
+- [x] `GET /api/salon/email/auto-rules/:type` - 取得特定規則
+- [x] `PUT /api/salon/email/auto-rules/:type` - 更新自動發信規則
 
 #### 3.4.12 Email 發送紀錄
-- [ ] `GET /api/salon/email-logs` - 取得發送紀錄
-  - 需要：Bearer Token（店家）
-  - 可選參數：customer_id, type, status, date_from, date_to, page, limit
-  - 回應：發送紀錄列表
+- [x] `GET /api/salon/email/logs` - 取得發送紀錄（含篩選）
 
 ### 3.5 API 文件
-- [ ] 設定 Swagger/OpenAPI
-- [ ] 為所有 API 撰寫文件
-- [ ] 標註請求/回應範例
-- [ ] 標註錯誤碼說明
+- [x] 設定 Swagger/OpenAPI（flask-restx 整合，路徑：/docs）
+- [x] 為所有 API 撰寫文件（透過 flask-restx @ns.doc 自動生成）
+- [ ] 標註請求/回應範例（進階優化）
+- [ ] 標註錯誤碼說明（進階優化）
 
 ---
 
