@@ -22,35 +22,35 @@
 ### 0.1 日曆元件設計
 
 #### 0.1.1 元件架構
-- [ ] 建立 `components/ui/AppCalendar.vue` - 通用日曆元件
+- [x] 建立 `components/ui/AppCalendar.vue` - 通用日曆元件
   - 支援月視圖、週視圖、日視圖切換
   - 仿 Google Calendar 介面設計
   - 支援拖放操作（未來擴充）
   - 響應式設計（桌機/平板/手機）
 
 #### 0.1.2 視圖模式
-- [ ] **月視圖（Month View）**
+- [x] **月視圖（Month View）**
   - 顯示整月格子
   - 每格顯示當日預約數量或摘要
   - 點擊日期可展開詳情或切換至日視圖
 
-- [ ] **週視圖（Week View）**
+- [x] **週視圖（Week View）**
   - 橫軸：週一至週日
   - 縱軸：時間軸（依營業時間範圍）
   - 預約區塊顯示於對應時段
   - 顏色區分不同設計師或狀態
 
-- [ ] **日視圖（Day View）**
+- [x] **日視圖（Day View）**
   - 單日時間軸詳細顯示
   - 每位設計師一個欄位（多欄並列）
   - 清楚顯示空檔與已預約時段
 
 #### 0.1.3 日曆元件功能
-- [ ] 日期導航（上一週/月、下一週/月、返回今天）
-- [ ] 視圖切換按鈕
-- [ ] 預約區塊點擊顯示詳情
-- [ ] 設計師篩選（顯示特定設計師）
-- [ ] 狀態顏色標示
+- [x] 日期導航（上一週/月、下一週/月、返回今天）
+- [x] 視圖切換按鈕
+- [x] 預約區塊點擊顯示詳情
+- [x] 設計師篩選（顯示特定設計師）
+- [x] 狀態顏色標示
   - 待確認：黃色
   - 已確認：綠色
   - 已完成：灰色
@@ -59,7 +59,7 @@
 
 ### 0.2 店家後台日曆頁面
 
-- [ ] 建立 `pages/admin/calendar.vue` - 店家預約日曆
+- [x] 建立 `pages/admin/calendar.vue` - 店家預約日曆
   - 整合 AppCalendar 元件
   - 預設顯示週視圖
   - 右側或彈窗顯示預約詳情
@@ -67,17 +67,18 @@
   - 設計師篩選下拉選單
   - 新增預約按鈕（點擊空白時段快速建立）
 
-- [ ] 更新 `components/admin/AdminSidebar.vue`
+- [x] 更新 `components/admin/AdminSidebar.vue`
   - 新增「預約日曆」導航項目
   - 放置於「預約管理」下方或整合
 
 ### 0.3 顧客前台日曆頁面
 
-- [ ] 建立 `pages/s/[code]/my-bookings.vue` - 我的預約日曆
+- [x] 建立 `pages/my/bookings.vue` - 我的預約日曆
   - 顯示該顧客所有預約
   - 預設月視圖
   - 點擊可查看預約詳情
   - 可從此頁面取消預約
+  - 支援日曆/列表視圖切換
 
 - [ ] 建立 `pages/s/[code]/booking/calendar.vue` - 預約選擇日曆
   - 選擇日期時顯示月曆
@@ -99,14 +100,14 @@
 ## Phase 1: 資料庫設計
 
 ### 1.1 選擇資料庫技術
-- [ ] 決定使用的資料庫系統（建議：PostgreSQL 或 MySQL）
-- [ ] 確認 Docker 化部署方案
-- [ ] 建立 docker-compose 資料庫服務設定
+- [x] 決定使用的資料庫系統（建議：PostgreSQL 或 MySQL）
+- [x] 確認 Docker 化部署方案
+- [x] 建立 docker-compose 資料庫服務設定
 
 ### 1.2 設計資料表結構
 
 #### 1.2.1 店家相關表
-- [ ] **salons（店家）**
+- [x] **salons（店家）**
   - `id` - 主鍵 UUID
   - `code` - 店家代碼（用於 URL，唯一）
   - `name` - 店家名稱
@@ -122,7 +123,7 @@
   - `created_at` - 建立時間
   - `updated_at` - 更新時間
 
-- [ ] **salon_owners（店家管理員）**
+- [x] **salon_owners（店家管理員）**
   - `id` - 主鍵 UUID
   - `salon_id` - 外鍵關聯 salons
   - `name` - 姓名
@@ -134,7 +135,7 @@
   - `created_at` - 建立時間
   - `updated_at` - 更新時間
 
-- [ ] **business_hours（營業時間）**
+- [x] **business_hours（營業時間）**
   - `id` - 主鍵 UUID
   - `salon_id` - 外鍵關聯 salons
   - `day_of_week` - 星期幾（0-6，0=週日）
@@ -144,7 +145,7 @@
   - `created_at` - 建立時間
   - `updated_at` - 更新時間
 
-- [ ] **booking_rules（預約規則）**
+- [x] **booking_rules（預約規則）**
   - `id` - 主鍵 UUID
   - `salon_id` - 外鍵關聯 salons（唯一）
   - `slot_interval` - 預約時段間隔（分鐘）
@@ -154,7 +155,7 @@
   - `created_at` - 建立時間
   - `updated_at` - 更新時間
 
-- [ ] **special_dates（特殊日期設定）**
+- [x] **special_dates（特殊日期設定）**
   - `id` - 主鍵 UUID
   - `salon_id` - 外鍵關聯 salons
   - `date` - 日期
@@ -167,7 +168,7 @@
   - 唯一約束：(salon_id, date)
 
 #### 1.2.2 設計師相關表
-- [ ] **stylists（設計師）**
+- [x] **stylists（設計師）**
   - `id` - 主鍵 UUID
   - `salon_id` - 外鍵關聯 salons
   - `name` - 姓名
@@ -179,7 +180,7 @@
   - `created_at` - 建立時間
   - `updated_at` - 更新時間
 
-- [ ] **stylist_schedules（設計師排班）**
+- [x] **stylist_schedules（設計師排班）**
   - `id` - 主鍵 UUID
   - `stylist_id` - 外鍵關聯 stylists
   - `day_of_week` - 星期幾（0-6）
@@ -189,7 +190,7 @@
   - `created_at` - 建立時間
   - `updated_at` - 更新時間
 
-- [ ] **stylist_breaks（設計師休息時間/特殊休假）**
+- [x] **stylist_breaks（設計師休息時間/特殊休假）**
   - `id` - 主鍵 UUID
   - `stylist_id` - 外鍵關聯 stylists
   - `date` - 日期（特定日期休假用）
@@ -199,7 +200,7 @@
   - `created_at` - 建立時間
 
 #### 1.2.3 服務相關表
-- [ ] **services（服務項目）**
+- [x] **services（服務項目）**
   - `id` - 主鍵 UUID
   - `salon_id` - 外鍵關聯 salons
   - `name` - 服務名稱
@@ -212,7 +213,7 @@
   - `created_at` - 建立時間
   - `updated_at` - 更新時間
 
-- [ ] **service_stylists（服務-設計師關聯）**
+- [x] **service_stylists（服務-設計師關聯）**
   - `id` - 主鍵 UUID
   - `service_id` - 外鍵關聯 services
   - `stylist_id` - 外鍵關聯 stylists
@@ -220,7 +221,7 @@
   - 唯一約束：(service_id, stylist_id)
 
 #### 1.2.4 顧客相關表
-- [ ] **customers（顧客）**
+- [x] **customers（顧客）**
   - `id` - 主鍵 UUID
   - `name` - 姓名
   - `email` - Email（唯一，登入用）
@@ -231,7 +232,7 @@
   - `created_at` - 建立時間
   - `updated_at` - 更新時間
 
-- [ ] **salon_customers（店家-顧客關聯與備註）**
+- [x] **salon_customers（店家-顧客關聯與備註）**
   - `id` - 主鍵 UUID
   - `salon_id` - 外鍵關聯 salons
   - `customer_id` - 外鍵關聯 customers
@@ -246,7 +247,7 @@
   - 唯一約束：(salon_id, customer_id)
 
 #### 1.2.5 預約相關表
-- [ ] **bookings（預約）**
+- [x] **bookings（預約）**
   - `id` - 主鍵 UUID
   - `salon_id` - 外鍵關聯 salons
   - `customer_id` - 外鍵關聯 customers
@@ -267,7 +268,7 @@
   - 索引：(customer_id)
 
 #### 1.2.6 統計相關表（可選，用於快取統計數據）
-- [ ] **customer_stats（顧客統計快取）**
+- [x] **customer_stats（顧客統計快取）**
   - `id` - 主鍵 UUID
   - `salon_id` - 外鍵關聯 salons
   - `customer_id` - 外鍵關聯 customers
@@ -279,7 +280,7 @@
   - 唯一約束：(salon_id, customer_id)
 
 #### 1.2.7 會員等級相關表
-- [ ] **membership_tiers（會員等級定義）**
+- [x] **membership_tiers（會員等級定義）**
   - `id` - 主鍵 UUID
   - `salon_id` - 外鍵關聯 salons
   - `name` - 等級名稱（如：一般會員、銀卡、金卡、VIP）
@@ -293,7 +294,7 @@
   - `created_at` - 建立時間
   - `updated_at` - 更新時間
 
-- [ ] **customer_memberships（顧客會員等級）**
+- [x] **customer_memberships（顧客會員等級）**
   - `id` - 主鍵 UUID
   - `salon_id` - 外鍵關聯 salons
   - `customer_id` - 外鍵關聯 customers
@@ -305,7 +306,7 @@
   - 唯一約束：(salon_id, customer_id)
 
 #### 1.2.8 行銷推播相關表
-- [ ] **email_templates（Email 範本）**
+- [x] **email_templates（Email 範本）**
   - `id` - 主鍵 UUID
   - `salon_id` - 外鍵關聯 salons（NULL 表示系統範本）
   - `type` - 範本類型（booking_confirm/booking_reminder/birthday/revisit/promotion）
@@ -316,7 +317,7 @@
   - `created_at` - 建立時間
   - `updated_at` - 更新時間
 
-- [ ] **email_campaigns（Email 行銷活動）**
+- [x] **email_campaigns（Email 行銷活動）**
   - `id` - 主鍵 UUID
   - `salon_id` - 外鍵關聯 salons
   - `name` - 活動名稱
@@ -333,7 +334,7 @@
   - `created_at` - 建立時間
   - `updated_at` - 更新時間
 
-- [ ] **email_logs（Email 發送紀錄）**
+- [x] **email_logs（Email 發送紀錄）**
   - `id` - 主鍵 UUID
   - `campaign_id` - 外鍵關聯 email_campaigns（可 NULL，用於自動發送）
   - `salon_id` - 外鍵關聯 salons
@@ -348,7 +349,7 @@
   - `error_message` - 錯誤訊息
   - `created_at` - 建立時間
 
-- [ ] **auto_email_rules（自動發信規則）**
+- [x] **auto_email_rules（自動發信規則）**
   - `id` - 主鍵 UUID
   - `salon_id` - 外鍵關聯 salons
   - `type` - 規則類型
@@ -366,11 +367,11 @@
   - `updated_at` - 更新時間
 
 ### 1.3 建立資料庫
-- [ ] 撰寫 SQL 建表腳本（或使用 ORM migration）
-- [ ] 建立索引以優化查詢效能
-- [ ] 建立外鍵約束確保資料完整性
-- [ ] 撰寫種子資料（Seed Data）腳本
-- [ ] 建立測試用假資料
+- [x] 撰寫 SQL 建表腳本（或使用 ORM migration）
+- [x] 建立索引以優化查詢效能
+- [x] 建立外鍵約束確保資料完整性
+- [x] 撰寫種子資料（Seed Data）腳本
+- [x] 建立測試用假資料
 
 ### 1.4 資料庫文件
 - [ ] 繪製 ER Diagram（實體關係圖）

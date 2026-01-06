@@ -22,6 +22,9 @@ def create_app():
     # 初始化資料庫
     db.init_app(app)
 
+    # 載入所有資料模型（確保建表時能找到所有模型）
+    from app import models  # noqa: F401
+
     # 註冊路由
     from app.routes import main
     app.register_blueprint(main.bp)
