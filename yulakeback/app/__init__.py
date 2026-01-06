@@ -24,20 +24,23 @@ api = Api(
 )
 
 
-def create_app():
+def create_app(test_config=None):
     app = Flask(__name__)
 
     # CORS 設定
     CORS(app)
 
     # 應用程式設定
-    app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv(
-        'DATABASE_URL',
-        'postgresql://yulake:yulake@localhost:5432/yulake'
-    )
-    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-    app.config['JWT_SECRET'] = os.getenv('JWT_SECRET', 'yulake-dev-secret-key-change-in-production')
-    app.config['RESTX_MASK_SWAGGER'] = False  # 不隱藏 X-Fields header
+    if test_config:
+        app.config.update(test_config)
+    else:
+        app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv(
+            'DATABASE_URL',
+            'postgresql://yulake:yulake@localhost:5432/yulake'
+        )
+        app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+        app.config['JWT_SECRET'] = os.getenv('JWT_SECRET', 'yulake-dev-secret-key-change-in-production')
+        app.config['RESTX_MASK_SWAGGER'] = False  # 不隱藏 X-Fields header
 
     # 初始化資料庫
     db.init_app(app)
