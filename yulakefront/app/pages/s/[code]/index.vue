@@ -67,11 +67,24 @@
         </div>
       </section>
 
-      <!-- 立即預約按鈕 -->
+      <!-- 底部行動按鈕 -->
       <div class="booking-cta">
-        <NuxtLink :to="`/s/${code}/booking`" class="booking-button">
-          立即預約
-        </NuxtLink>
+        <div class="cta-container">
+          <NuxtLink :to="`/s/${code}/booking`" class="booking-button">
+            開始預約
+          </NuxtLink>
+          <NuxtLink
+            v-if="!isAuthenticated"
+            to="/auth/login"
+            class="login-button"
+            @click="saveRedirect"
+          >
+            登入 / 註冊
+          </NuxtLink>
+          <NuxtLink v-else to="/my/bookings" class="login-button">
+            我的預約
+          </NuxtLink>
+        </div>
       </div>
 
       <!-- 底部 -->
@@ -91,6 +104,7 @@ import { ref, computed, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { useBookingApi } from '~/composables/useBookingApi'
 import { useBookingStore } from '~/stores/booking'
+import { useAuth } from '~/composables/useAuth'
 import type { SalonPublicInfo } from '~/composables/useBookingApi'
 
 // 路由參數
@@ -100,6 +114,12 @@ const code = computed(() => route.params.code as string)
 // API 與狀態
 const bookingApi = useBookingApi()
 const bookingStore = useBookingStore()
+const { isAuthenticated } = useAuth()
+
+// 登入前儲存當前路徑
+const saveRedirect = () => {
+  sessionStorage.setItem('redirectAfterLogin', route.fullPath)
+}
 
 // 本地狀態
 const loading = ref(true)
@@ -344,7 +364,7 @@ onMounted(() => {
   color: var(--color-text-muted);
 }
 
-/* 預約按鈕 */
+/* 底部行動按鈕 */
 .booking-cta {
   position: fixed;
   bottom: 0;
@@ -356,17 +376,22 @@ onMounted(() => {
   box-shadow: var(--shadow-lg);
 }
 
-.booking-button {
-  display: block;
-  width: 100%;
+.cta-container {
+  display: flex;
+  gap: var(--spacing-sm);
   max-width: 400px;
   margin: 0 auto;
-  padding: var(--spacing-md) var(--spacing-xl);
+}
+
+.booking-button {
+  flex: 1;
+  display: block;
+  padding: var(--spacing-md) var(--spacing-lg);
   background: var(--theme-color);
   color: white;
   text-align: center;
   text-decoration: none;
-  font-size: var(--font-size-lg);
+  font-size: var(--font-size-md);
   font-weight: 600;
   border-radius: var(--radius-lg);
   transition: all var(--transition-fast);
@@ -375,6 +400,25 @@ onMounted(() => {
 .booking-button:hover {
   opacity: 0.9;
   transform: translateY(-1px);
+}
+
+.login-button {
+  display: block;
+  padding: var(--spacing-md) var(--spacing-lg);
+  background: transparent;
+  color: var(--theme-color);
+  text-align: center;
+  text-decoration: none;
+  font-size: var(--font-size-md);
+  font-weight: 500;
+  border: 1px solid var(--theme-color);
+  border-radius: var(--radius-lg);
+  transition: all var(--transition-fast);
+  white-space: nowrap;
+}
+
+.login-button:hover {
+  background: var(--theme-color-light);
 }
 
 /* Footer */
