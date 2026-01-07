@@ -7,12 +7,34 @@
         <div class="logo">Y</div>
         <h1>約來客 <span class="brand-en">Yulake</span></h1>
         <p class="tagline">美甲美睫預約平台</p>
-        <p class="description">輕鬆管理您的預約，隨時查看排程</p>
+        <p class="description">輕鬆預約，隨時查看排程</p>
+
+        <!-- 店家搜尋 -->
+        <div class="search-box">
+          <form @submit.prevent="goToSalon">
+            <input
+              v-model="salonCode"
+              type="text"
+              placeholder="輸入店家代碼（如：nailart）"
+              class="search-input"
+            >
+            <button type="submit" class="search-btn" :disabled="!salonCode.trim()">
+              開始預約
+            </button>
+          </form>
+          <p class="search-hint">輸入店家專屬代碼，立即開始預約</p>
+        </div>
       </div>
     </section>
 
     <!-- 快速入口 -->
     <section class="quick-links">
+      <NuxtLink to="/s/nailart" class="link-card booking">
+        <span class="link-icon">✨</span>
+        <span class="link-title">立即預約</span>
+        <span class="link-desc">前往示範店家體驗預約流程</span>
+      </NuxtLink>
+
       <NuxtLink to="/my/bookings" class="link-card customer">
         <span class="link-icon">📅</span>
         <span class="link-title">我的預約</span>
@@ -38,6 +60,19 @@
  * 首頁 - 平台入口頁面
  * 提供顧客與店家的快速入口
  */
+import { ref } from 'vue'
+import { useRouter } from 'vue-router'
+
+const router = useRouter()
+const salonCode = ref('')
+
+// 前往店家頁面
+const goToSalon = () => {
+  const code = salonCode.value.trim().toLowerCase()
+  if (code) {
+    router.push(`/s/${code}`)
+  }
+}
 </script>
 
 <style scoped>
@@ -60,6 +95,7 @@
 
 .hero-content {
   text-align: center;
+  max-width: 500px;
 }
 
 .logo {
@@ -98,7 +134,68 @@ h1 {
 .description {
   font-size: var(--font-size-sm);
   color: var(--color-text-secondary);
-  margin: 0;
+  margin: 0 0 var(--spacing-xl) 0;
+}
+
+/* 搜尋框 */
+.search-box {
+  margin-top: var(--spacing-lg);
+}
+
+.search-box form {
+  display: flex;
+  gap: var(--spacing-sm);
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+.search-input {
+  flex: 1;
+  padding: var(--spacing-md);
+  border: 2px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  font-size: var(--font-size-md);
+  font-family: inherit;
+  background: var(--color-bg-card);
+  transition: border-color var(--transition-fast);
+}
+
+.search-input:focus {
+  outline: none;
+  border-color: var(--color-primary);
+}
+
+.search-input::placeholder {
+  color: var(--color-text-muted);
+}
+
+.search-btn {
+  padding: var(--spacing-md) var(--spacing-lg);
+  background: var(--color-primary);
+  color: white;
+  border: none;
+  border-radius: var(--radius-lg);
+  font-size: var(--font-size-md);
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all var(--transition-fast);
+}
+
+.search-btn:disabled {
+  background: var(--color-border);
+  cursor: not-allowed;
+}
+
+.search-btn:not(:disabled):hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
+}
+
+.search-hint {
+  margin: var(--spacing-sm) 0 0 0;
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
 }
 
 /* 快速入口 */
@@ -108,6 +205,7 @@ h1 {
   justify-content: center;
   padding: var(--spacing-2xl);
   background-color: var(--color-bg-card);
+  flex-wrap: wrap;
 }
 
 .link-card {
@@ -121,13 +219,22 @@ h1 {
   border-radius: var(--radius-lg);
   text-decoration: none;
   transition: all var(--transition-fast);
-  min-width: 200px;
+  min-width: 180px;
 }
 
 .link-card:hover {
   border-color: var(--color-primary);
   box-shadow: var(--shadow-md);
   transform: translateY(-2px);
+}
+
+.link-card.booking {
+  border-color: var(--color-primary);
+  background: linear-gradient(135deg, var(--color-primary-light) 0%, var(--color-bg) 100%);
+}
+
+.link-card.booking:hover {
+  background: var(--color-primary-light);
 }
 
 .link-card.customer:hover {
@@ -183,6 +290,14 @@ h1 {
 
   h1 {
     font-size: var(--font-size-2xl);
+  }
+
+  .search-box form {
+    flex-direction: column;
+  }
+
+  .search-btn {
+    width: 100%;
   }
 }
 </style>
