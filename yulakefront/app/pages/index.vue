@@ -1,303 +1,122 @@
-<template>
-  <!-- 首頁 - 平台入口頁面 -->
-  <div class="home-page">
-    <!-- Hero 區塊 -->
-    <section class="hero">
-      <div class="hero-content">
-        <div class="logo">Y</div>
-        <h1>約來客 <span class="brand-en">Yulake</span></h1>
-        <p class="tagline">美甲美睫預約平台</p>
-        <p class="description">輕鬆預約，隨時查看排程</p>
-
-        <!-- 店家搜尋 -->
-        <div class="search-box">
-          <form @submit.prevent="goToSalon">
-            <input
-              v-model="salonCode"
-              type="text"
-              placeholder="輸入店家代碼（如：nailart）"
-              class="search-input"
-            >
-            <button type="submit" class="search-btn" :disabled="!salonCode.trim()">
-              開始預約
-            </button>
-          </form>
-          <p class="search-hint">輸入店家專屬代碼，立即開始預約</p>
-        </div>
-      </div>
-    </section>
-
-    <!-- 快速入口 -->
-    <section class="quick-links">
-      <NuxtLink to="/s/nailart" class="link-card booking">
-        <span class="link-icon">✨</span>
-        <span class="link-title">立即預約</span>
-        <span class="link-desc">前往示範店家體驗預約流程</span>
-      </NuxtLink>
-
-      <NuxtLink to="/my/bookings" class="link-card customer">
-        <span class="link-icon">📅</span>
-        <span class="link-title">我的預約</span>
-        <span class="link-desc">查看及管理您的預約紀錄</span>
-      </NuxtLink>
-
-      <NuxtLink to="/admin" class="link-card admin">
-        <span class="link-icon">🏪</span>
-        <span class="link-title">店家後台</span>
-        <span class="link-desc">店家管理系統入口</span>
-      </NuxtLink>
-    </section>
-
-    <!-- 底部資訊 -->
-    <footer class="home-footer">
-      <p>&copy; 2026 約來客 Yulake. All rights reserved.</p>
-    </footer>
-  </div>
-</template>
-
 <script setup lang="ts">
 /**
- * 首頁 - 平台入口頁面
- * 提供顧客與店家的快速入口
+ * 首頁 - 客戶直接進入預約流程
+ * 輸入店家代碼後直接開始預約
  */
-import { ref } from 'vue'
-import { useRouter } from 'vue-router'
 
-const router = useRouter()
 const salonCode = ref('')
+const isLoading = ref(false)
+const errorMessage = ref('')
 
-// 前往店家頁面
-const goToSalon = () => {
-  const code = salonCode.value.trim().toLowerCase()
-  if (code) {
-    router.push(`/s/${code}`)
+const handleStartBooking = async () => {
+  if (!salonCode.value.trim()) {
+    errorMessage.value = '請輸入店家代碼'
+    return
+  }
+
+  isLoading.value = true
+  errorMessage.value = ''
+
+  // 直接導向該店家的預約頁面
+  await navigateTo(`/s/${salonCode.value.trim()}/booking`)
+}
+
+// 按 Enter 鍵也可以開始預約
+const handleKeydown = (e: KeyboardEvent) => {
+  if (e.key === 'Enter') {
+    handleStartBooking()
   }
 }
 </script>
 
-<style scoped>
-.home-page {
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  background-color: var(--color-bg);
-}
+<template>
+  <div class="min-h-screen bg-gradient-to-br from-pink-50 via-white to-purple-50">
+    <!-- 主內容區 -->
+    <div class="flex flex-col items-center justify-center min-h-screen px-4">
+      <!-- Logo 和標題 -->
+      <div class="text-center mb-8">
+        <div class="w-20 h-20 bg-gradient-to-br from-pink-400 to-purple-500 rounded-full mx-auto mb-4 flex items-center justify-center shadow-lg">
+          <span class="text-3xl text-white">💅</span>
+        </div>
+        <h1 class="text-3xl font-bold text-gray-800 mb-2">Yulake</h1>
+        <p class="text-gray-500">美甲美睫預約平台</p>
+      </div>
 
-/* Hero 區塊 */
-.hero {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: var(--spacing-2xl);
-  background: linear-gradient(135deg, var(--color-primary-light) 0%, var(--color-bg) 100%);
-}
+      <!-- 預約卡片 -->
+      <div class="w-full max-w-md bg-white rounded-2xl shadow-xl p-8">
+        <h2 class="text-xl font-semibold text-gray-800 text-center mb-6">
+          開始預約
+        </h2>
 
-.hero-content {
-  text-align: center;
-  max-width: 500px;
-}
+        <!-- 輸入店家代碼 -->
+        <div class="space-y-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">
+              店家代碼
+            </label>
+            <input
+              v-model="salonCode"
+              type="text"
+              placeholder="請輸入店家代碼，例如：nailart"
+              class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-pink-300 focus:border-pink-400 transition-all text-center text-lg"
+              :disabled="isLoading"
+              @keydown="handleKeydown"
+            >
+          </div>
 
-.logo {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 80px;
-  height: 80px;
-  background: linear-gradient(135deg, var(--color-primary), var(--color-primary-dark));
-  border-radius: var(--radius-xl);
-  color: var(--color-text-inverse);
-  font-size: 40px;
-  font-weight: 700;
-  margin-bottom: var(--spacing-lg);
-  box-shadow: var(--shadow-lg);
-}
+          <!-- 錯誤訊息 -->
+          <p v-if="errorMessage" class="text-red-500 text-sm text-center">
+            {{ errorMessage }}
+          </p>
 
-h1 {
-  font-size: var(--font-size-3xl);
-  color: var(--color-text-primary);
-  margin: 0 0 var(--spacing-sm) 0;
-}
+          <!-- 開始預約按鈕 -->
+          <button
+            class="w-full mt-2 px-6 py-4 bg-gradient-to-r from-pink-500 to-purple-600 text-white text-lg font-semibold rounded-xl shadow-lg hover:shadow-xl hover:from-pink-600 hover:to-purple-700 active:scale-[0.98] transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+            :disabled="isLoading"
+            @click="handleStartBooking"
+          >
+            <span v-if="isLoading" class="inline-flex items-center justify-center gap-2">
+              <svg class="animate-spin h-5 w-5" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none" />
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+              </svg>
+              載入中...
+            </span>
+            <span v-else>開始預約</span>
+          </button>
+        </div>
 
-.brand-en {
-  color: var(--color-primary);
-  font-weight: 400;
-}
+        <!-- 分隔線 -->
+        <div class="flex items-center my-6">
+          <div class="flex-1 border-t border-gray-200"></div>
+          <span class="px-4 text-sm text-gray-400">或</span>
+          <div class="flex-1 border-t border-gray-200"></div>
+        </div>
 
-.tagline {
-  font-size: var(--font-size-lg);
-  color: var(--color-primary);
-  font-weight: 500;
-  margin: 0 0 var(--spacing-xs) 0;
-}
+        <!-- 快速連結 -->
+        <div class="space-y-3">
+          <p class="text-sm text-gray-500 text-center mb-3">
+            已經有帳號？
+          </p>
+          <NuxtLink
+            to="/auth/login"
+            class="block w-full py-3 border border-gray-200 text-gray-700 font-medium rounded-xl hover:bg-gray-50 transition-all text-center"
+          >
+            登入查看我的預約
+          </NuxtLink>
+        </div>
+      </div>
 
-.description {
-  font-size: var(--font-size-sm);
-  color: var(--color-text-secondary);
-  margin: 0 0 var(--spacing-xl) 0;
-}
-
-/* 搜尋框 */
-.search-box {
-  margin-top: var(--spacing-lg);
-}
-
-.search-box form {
-  display: flex;
-  gap: var(--spacing-sm);
-  max-width: 400px;
-  margin: 0 auto;
-}
-
-.search-input {
-  flex: 1;
-  padding: var(--spacing-md);
-  border: 2px solid var(--color-border);
-  border-radius: var(--radius-lg);
-  font-size: var(--font-size-md);
-  font-family: inherit;
-  background: var(--color-bg-card);
-  transition: border-color var(--transition-fast);
-}
-
-.search-input:focus {
-  outline: none;
-  border-color: var(--color-primary);
-}
-
-.search-input::placeholder {
-  color: var(--color-text-muted);
-}
-
-.search-btn {
-  padding: var(--spacing-md) var(--spacing-lg);
-  background: var(--color-primary);
-  color: white;
-  border: none;
-  border-radius: var(--radius-lg);
-  font-size: var(--font-size-md);
-  font-weight: 600;
-  cursor: pointer;
-  white-space: nowrap;
-  transition: all var(--transition-fast);
-}
-
-.search-btn:disabled {
-  background: var(--color-border);
-  cursor: not-allowed;
-}
-
-.search-btn:not(:disabled):hover {
-  opacity: 0.9;
-  transform: translateY(-1px);
-}
-
-.search-hint {
-  margin: var(--spacing-sm) 0 0 0;
-  font-size: var(--font-size-xs);
-  color: var(--color-text-muted);
-}
-
-/* 快速入口 */
-.quick-links {
-  display: flex;
-  gap: var(--spacing-lg);
-  justify-content: center;
-  padding: var(--spacing-2xl);
-  background-color: var(--color-bg-card);
-  flex-wrap: wrap;
-}
-
-.link-card {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: var(--spacing-sm);
-  padding: var(--spacing-xl) var(--spacing-2xl);
-  background-color: var(--color-bg);
-  border: 2px solid var(--color-border);
-  border-radius: var(--radius-lg);
-  text-decoration: none;
-  transition: all var(--transition-fast);
-  min-width: 180px;
-}
-
-.link-card:hover {
-  border-color: var(--color-primary);
-  box-shadow: var(--shadow-md);
-  transform: translateY(-2px);
-}
-
-.link-card.booking {
-  border-color: var(--color-primary);
-  background: linear-gradient(135deg, var(--color-primary-light) 0%, var(--color-bg) 100%);
-}
-
-.link-card.booking:hover {
-  background: var(--color-primary-light);
-}
-
-.link-card.customer:hover {
-  border-color: var(--color-primary);
-  background-color: var(--color-primary-light);
-}
-
-.link-card.admin:hover {
-  border-color: var(--color-secondary);
-}
-
-.link-icon {
-  font-size: 32px;
-}
-
-.link-title {
-  font-size: var(--font-size-lg);
-  font-weight: 600;
-  color: var(--color-text-primary);
-}
-
-.link-desc {
-  font-size: var(--font-size-sm);
-  color: var(--color-text-secondary);
-  text-align: center;
-}
-
-/* 底部 */
-.home-footer {
-  padding: var(--spacing-lg);
-  text-align: center;
-  background-color: var(--color-bg);
-  border-top: 1px solid var(--color-border-light);
-}
-
-.home-footer p {
-  margin: 0;
-  font-size: var(--font-size-xs);
-  color: var(--color-text-muted);
-}
-
-/* 響應式 */
-@media (max-width: 768px) {
-  .quick-links {
-    flex-direction: column;
-    align-items: center;
-  }
-
-  .link-card {
-    width: 100%;
-    max-width: 300px;
-  }
-
-  h1 {
-    font-size: var(--font-size-2xl);
-  }
-
-  .search-box form {
-    flex-direction: column;
-  }
-
-  .search-btn {
-    width: 100%;
-  }
-}
-</style>
+      <!-- 底部連結 -->
+      <div class="mt-8 text-center">
+        <p class="text-sm text-gray-400 mb-2">是店家嗎？</p>
+        <NuxtLink
+          to="/portal"
+          class="text-pink-500 hover:text-pink-600 font-medium text-sm"
+        >
+          前往店家入口
+        </NuxtLink>
+      </div>
+    </div>
+  </div>
+</template>
